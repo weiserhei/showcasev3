@@ -41,6 +41,9 @@ define([
     	var models = new THREE.Group();
     	scene.add( models );
 
+    	var animations = [];
+    	var folder = [];
+
 		// INITIAL CAMERA POSITION AND TARGET
 		camera.position.set( 0, 1, 4 );
 		controls.target.copy( new THREE.Vector3( 0, 0.5, 0 ) );
@@ -219,6 +222,18 @@ define([
 
 		function clean( group ) {
 
+			for ( var j = 0; j < folder.length; j ++ ) {
+
+				/*
+				for( var i = 0; i < animations.length; i ++ ) {
+					folder[ j ].remove( animations[ i ] );
+				}
+				*/
+				console.log( folder[j] );
+				dg.removeFolder( folder[ j ] );
+
+			}
+
 			group.traverse( function ( child ) {
 				// if ( child instanceof THREE.SkinnedMesh ) {
 				group.remove( child );
@@ -227,7 +242,13 @@ define([
 		}
 	
 		function loadMonster() {
+
 			clean( models );
+
+			var monsterFolder = dg.addFolder( "Monster" );
+			monsterFolder.open();
+			folder.push( "Monster" );
+
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
 			colladaLoader.load( 'assets/models/monster/monster.dae', function ( collada ) {
@@ -236,6 +257,11 @@ define([
 					if ( child instanceof THREE.SkinnedMesh ) {
 						var animation = new THREE.Animation( child, child.geometry.animation );
 						animation.play();
+
+						var aPlay = monsterFolder.add( animation, "play" ).name( "Play" + animation.data.name );
+						var aStop = monsterFolder.add( animation, "stop" ).name("Stop " + animation.data.name );
+						animations.push( aPlay, aStop );
+						
 					}
 				} );
 				dae.scale.x = dae.scale.y = dae.scale.z = 0.001;
@@ -247,8 +273,12 @@ define([
 		}
 	
 		function loadModel() {
-			
+
 			clean( models );
+
+			var wacheFolder = dg.addFolder( "Wache" );
+			wacheFolder.open();
+			folder.push( "Wache" );
 
 			var material = new THREE.MeshStandardMaterial();
 			// var material = new THREE.MeshPhongMaterial();
@@ -280,8 +310,9 @@ define([
 						console.log( "animation", animation );
 						animation.play();
 
-						dg.add( animation, "play" ).name("Play Animation");
-						dg.add( animation, "stop" ).name("Stop Animation");
+						var aPlay = wacheFolder.add( animation, "play" ).name( "Play" );
+						var aStop = wacheFolder.add( animation, "stop" ).name("Stop " + animation.data.name );
+						animations.push( aPlay, aStop );
 
 					}
 

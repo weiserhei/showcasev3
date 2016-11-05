@@ -25,6 +25,17 @@ define([
         return this.addThreeColor(material.uniforms[uniformName],"value").name(label||uniformName);
     };
 
+    dat.GUI.prototype.removeFolder = function(name) {
+      var folder = this.__folders[name];
+      if (!folder) {
+        return;
+      }
+      folder.close();
+      this.__ul.removeChild(folder.domElement.parentNode);
+      delete this.__folders[name];
+      this.onResize();
+    }
+
     var gui = new dat.GUI();
     var folder = gui.addFolder("Debug Menu");
     folder.open();

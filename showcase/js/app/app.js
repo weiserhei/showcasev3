@@ -74,11 +74,17 @@ define([
 				modelLoader.load( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
 					dae.scale.multiplyScalar( 0.01 );
 				});
+			},
+			loadHellebarde: function() {
+				modelLoader.load( "Hellebarde", "assets/models/wache/hellebarde.dae", function callback( dae ) {
+					// dae.scale.multiplyScalar( 0.01 );
+				});
 			}
 		};
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
 		dg.add( options, "loadMonster" ).name("Load Monster");
+		dg.add( options, "loadHellebarde" ).name("Load Hellebarde");
 
 		// GRID FOR ORIENTATION
 		var gridXZ = new THREE.GridHelper( 3, 10, new THREE.Color( 0xff0000 ), new THREE.Color( 0xffffff ) );

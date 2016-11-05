@@ -52,7 +52,7 @@ define([
 		controls.target0 = controls.target.clone();
 		controls.position0 = camera.position.clone();
 		controls.zoom0 = camera.zoom;
-		
+
 
 		// DEBUG GUI
         var dg = debugGUI;
@@ -60,8 +60,14 @@ define([
 			reset: function() { 
 				tweenHelper.resetCamera( 600 );
 			},
-			loadModel: loadModel,
-			loadMonster: loadMonster
+			loadModel: function() {
+				loadModel( "Wache", "assets/models/wache/wache23_body_only.dae");
+			},
+			loadMonster: function() {
+				loadModel( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
+					dae.scale.multiplyScalar( 0.01 );
+				});
+			},
 		};
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
@@ -170,22 +176,6 @@ define([
 		var loader = new THREE.JSONLoader();
 		loader.load("assets/models/podest/podest.js", 
 			function callback(geometry, materials) {
-				/*
-				podest2 = new THREE.Mesh( geometry,  standShaderMat ); 	//new THREE.Mesh( geometry,  new THREE.MeshFaceMaterial( material1 ) );
-				podest2.scale.set(19,19,19);
-				podest2.position.set(60,-42.5,60);
-				podest2.overdraw = true;
-				podest2.receiveShadow = true;
-				podest2.castShadow = true;
-				podest2.rotation.y = Math.PI /4.5 ;
-				podest3 = new THREE.Mesh( geometry,  standShaderMat ); 	//new THREE.Mesh( geometry,  new THREE.MeshFaceMaterial( material1 ) );
-				podest3.scale.set(19,19,19);
-				podest3.position.set(-60,-42.5,-60);
-				podest3.overdraw = true;
-				podest3.receiveShadow = true;
-				podest3.castShadow = true;
-				podest3.rotation.y = Math.PI /4 ;
-				*/
 
 				var material = new THREE.MeshStandardMaterial();
 				var material = new THREE.MeshPhongMaterial();
@@ -220,106 +210,64 @@ define([
 			}
 		);
 
-		function clean( group ) {
+		function loadModel( name, path, callback ) {
 
+			// remove existing Folders from the gui
 			for ( var j = 0; j < folder.length; j ++ ) {
-
-				/*
-				for( var i = 0; i < animations.length; i ++ ) {
-					folder[ j ].remove( animations[ i ] );
-				}
-				*/
-				console.log( folder[j] );
 				dg.removeFolder( folder[ j ] );
-
 			}
 
-			group.traverse( function ( child ) {
+			// remove existing models from the scene
+			models.traverse( function ( child ) {
 				// if ( child instanceof THREE.SkinnedMesh ) {
-				group.remove( child );
+				models.remove( child );
 				// }
 			});
-		}
-	
-		function loadMonster() {
 
-			clean( models );
+			// Add new Folder to the GUI
+			var newFolder = dg.addFolder( name );
+			newFolder.open();
+			folder.push( name );
 
-			var monsterFolder = dg.addFolder( "Monster" );
-			monsterFolder.open();
-			folder.push( "Monster" );
+			var material = new THREE.MeshPhongMaterial();
 
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
-			colladaLoader.load( 'assets/models/monster/monster.dae', function ( collada ) {
+			colladaLoader.load( path, function ( collada ) {
+
 				var dae = collada.scene;
-				dae.traverse( function ( child ) {
-					if ( child instanceof THREE.SkinnedMesh ) {
-						var animation = new THREE.Animation( child, child.geometry.animation );
-						animation.play();
 
-						var aPlay = monsterFolder.add( animation, "play" ).name( "Play" + animation.data.name );
-						var aStop = monsterFolder.add( animation, "stop" ).name("Stop " + animation.data.name );
-						animations.push( aPlay, aStop );
-						
-					}
-				} );
-				dae.scale.x = dae.scale.y = dae.scale.z = 0.001;
-				dae.updateMatrix();
-				models.add( dae );
-				// scene.add( dae );
-				tweenHelper.fitObject( dae );
-			} );
-		}
-	
-		function loadModel() {
-
-			clean( models );
-
-			var wacheFolder = dg.addFolder( "Wache" );
-			wacheFolder.open();
-			folder.push( "Wache" );
-
-			var material = new THREE.MeshStandardMaterial();
-			// var material = new THREE.MeshPhongMaterial();
-
-			var path = "assets/models/wache/";
-			var tLoader = new THREE.TextureLoader();
-			var T_diffuse = tLoader.load( path+"colored_layout_v08.png" );
-			material.map = T_diffuse;
-
-			var colladaLoader = new THREE.ColladaLoader();
-			colladaLoader.options.convertUpAxis = true;
-			colladaLoader.load( 'assets/models/wache/wache.dae', function ( collada ) {
-				var dae = collada.scene;
 				dae.traverse( function ( child ) {
 
 					if (child instanceof THREE.Mesh) {
 
+						// console.log( child.material );
 						// apply custom material
 						// child.material = material; // WTF
-						child.material.map = T_diffuse;
+						
 						// enable casting shadows
 						child.castShadow = true;
 						// child.receiveShadow = true;
 					}
 
 					if ( child instanceof THREE.SkinnedMesh ) {
-						// console.log("instance of skinned", child);
+
+						// child.material = material; // WTF
 						var animation = new THREE.Animation( child, child.geometry.animation );
-						console.log( "animation", animation );
 						animation.play();
 
-						var aPlay = wacheFolder.add( animation, "play" ).name( "Play" );
-						var aStop = wacheFolder.add( animation, "stop" ).name("Stop " + animation.data.name );
-						animations.push( aPlay, aStop );
+						var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
+						var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);
 
 					}
 
 					
 				} );
 
-				// dae.scale.x = dae.scale.y = dae.scale.z = 0.002;
+				if ( callback !== undefined ) {
+					callback( dae );
+				}
+
 				dae.updateMatrix();
 				models.add( dae );
 				// scene.add( dae );

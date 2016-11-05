@@ -35,6 +35,8 @@ define([
 	
 	'use strict';
 
+	var skeletonHelper;
+
 	// Start program
     var initialize = function () {
 
@@ -52,6 +54,7 @@ define([
 		controls.target0 = controls.target.clone();
 		controls.position0 = camera.position.clone();
 		controls.zoom0 = camera.zoom;
+
 
 
 		// DEBUG GUI
@@ -229,7 +232,7 @@ define([
 			newFolder.open();
 			folder.push( name );
 
-			var material = new THREE.MeshPhongMaterial();
+			var material = new THREE.MeshLambertMaterial();
 
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
@@ -252,10 +255,16 @@ define([
 
 					if ( child instanceof THREE.SkinnedMesh ) {
 
-						// child.material = material; // WTF
+						scene.remove( skeletonHelper );
+						skeletonHelper = new THREE.SkeletonHelper( child );
+						skeletonHelper.material.linewidth = 2;
+						scene.add( skeletonHelper );
+
+						child.material = material; // WTF
 						var animation = new THREE.Animation( child, child.geometry.animation );
 						animation.play();
 
+						newFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 						var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
 						var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);
 
@@ -289,13 +298,19 @@ define([
 
 	};
 
+	function isset(variable) {
+		return typeof variable !== typeof undefined ? true : false;
+	}
+
 	// MAIN LOOP
     var animate = function () {
 
 		TWEEN.update();
 		controls.update();
 		stats.update();
-
+		if ( isset(skeletonHelper) ) {
+			skeletonHelper.update();
+		}
 		THREE.AnimationHandler.update( clock.getDelta() );
 
 		skycube.update( camera, renderer );

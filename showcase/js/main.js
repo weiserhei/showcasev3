@@ -17,7 +17,7 @@ require.config({
     },
     // Third party code lives in js/lib
     paths: {
-        'jquery': "http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min",
+        // 'jquery': "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min",
         'dat': "../libs/dat.gui.min",
         'TWEEN': "../libs/tween.min",
         // --- start THREE sub-components

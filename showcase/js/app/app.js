@@ -14,10 +14,7 @@ define([
     "debugGUI",
     "tweenHelper",
     "skycube",
-    "ColladaLoader",
-    "js/libs/three/loaders/collada/Animation.js",
-	"js/libs/three/loaders/collada/AnimationHandler.js",
-	"js/libs/three/loaders/collada/KeyFrameAnimation.js"
+    "modelLoader"
 ], function ( 
              THREE, 
              TWEEN, 
@@ -30,21 +27,13 @@ define([
              debugGUI, 
              tweenHelper,
              skycube,
-             ColladaLoader
+             modelLoader
              ) {
 	
 	'use strict';
 
-	var skeletonHelper;
-
 	// Start program
     var initialize = function () {
-
-    	var models = new THREE.Group();
-    	scene.add( models );
-
-    	var animations = [];
-    	var folder = [];
 
 		// INITIAL CAMERA POSITION AND TARGET
 		camera.position.set( 0, 1, 4 );
@@ -55,8 +44,6 @@ define([
 		controls.position0 = camera.position.clone();
 		controls.zoom0 = camera.zoom;
 
-
-
 		// DEBUG GUI
         var dg = debugGUI;
 		var options = {
@@ -64,10 +51,13 @@ define([
 				tweenHelper.resetCamera( 600 );
 			},
 			loadModel: function() {
-				loadModel( "Wache", "assets/models/wache/wache23_body_only.dae", function callback( dae ) {
+				modelLoader.load( "Wache", "assets/models/wache/wache23_body_only.dae", function callback( dae ) {
 
 					var material = new THREE.MeshStandardMaterial();
 					material.skinning = true;
+
+					// wache
+					// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
 
 					dae.traverse( function ( child ) {
 
@@ -81,10 +71,10 @@ define([
 				});
 			},
 			loadMonster: function() {
-				loadModel( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
+				modelLoader.load( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
 					dae.scale.multiplyScalar( 0.01 );
 				});
-			},
+			}
 		};
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
@@ -107,15 +97,6 @@ define([
 		}
 		*/
 
-		/*
-		var al =  new THREE.AmbientLight( 0xffffff, 0.3 );
-		scene.add( al );
-
-		var light = new THREE.SpotLight(0xffaa00, 0.8);
-		light.position.set( 0, 5, 0 );
-		scene.add( light );
-		*/
-
 		// var cube = new THREE.Mesh( new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffaa00 }) );
 		// scene.add( cube );
 		// cube.castShadow = true;
@@ -128,6 +109,7 @@ define([
 		spotlight1.position.set(5,8,-38);
 		spotlight1.target.position.set(0, 0, -1);
 		scene.add(spotlight1.target);
+		spotlight1.target.updateMatrixWorld();
 		// spotlight1.shadowDarkness = 0.10;
 		spotlight1.castShadow = false;
 		scene.add(spotlight1);
@@ -154,8 +136,10 @@ define([
 
 		// spotlight #3 -- vorne
 		var spotlight3 = new THREE.SpotLight(0xffffff, 1);
-		spotlight3.position.set(-12,1,18);
-		spotlight3.target.position.set(2.5, -2, -4);
+		// spotlight3.position.set(-12,2,18);
+		spotlight3.position.set(-4,2,5);
+		// spotlight3.target.position.set(2.5, 0.1, -4);
+		spotlight3.target.position.set(2, 0.1, -2);
 		scene.add(spotlight3.target);
 	   	spotlight3.target.updateMatrixWorld(); // <==================================
 		// spotlight3.shadowDarkness = 0.10;
@@ -163,10 +147,15 @@ define([
 		// spotlight3.shadow.camera.near = 1;
 		// spotlight3.shadow.camera.far = 50;
 		spotlight3.shadow.mapSize.width = spotlight3.shadow.mapSize.height = 1024;
+		spotlight3.shadow.camera.near = 1;
+		spotlight3.shadow.camera.far = 20;
+		spotlight3.shadow.camera.fov = 20;
 		scene.add(spotlight3);
 		// var lightHelper = new THREE.SpotLightHelper( spotlight3 );
 		// scene.add( lightHelper );
 		// standardlicht.push(spotlight3);
+		// var helper = new THREE.CameraHelper( spotlight3.shadow.camera );
+		// scene.add( helper );
 
 		//Bodenstrahler
 		var spotlight4 = new THREE.SpotLight(0xccccff, 0.5);
@@ -176,10 +165,26 @@ define([
 		// spotlight4.shadowDarkness = 0.10;
 		spotlight4.castShadow = false;
 		scene.add(spotlight4);
+		spotlight4.target.updateMatrixWorld();
 		// var lightHelper = new THREE.SpotLightHelper( spotlight4 );
 		// scene.add( lightHelper );
 		// standardlicht.push(spotlight4);
 
+		// debugLights( spotlight1, "Spotlight1" );
+		// debugLights( spotlight2, "Spotlight2" );
+		// debugLights( spotlight3, "Spotlight3" );
+		// debugLights( spotlight4, "Spotlight4" );
+
+		function debugLights( light, name ) {
+			dg.add( light, "intensity" ).min(0).max(2).name(name);
+			dg.add( light, "visible" ).name(name+" visible");
+
+			var lightHelper = new THREE.SpotLightHelper( light );
+			scene.add( lightHelper );
+			// var helper = new THREE.CameraHelper( light.shadow.camera );
+			// scene.add( helper );
+
+		}
 		// var ambi = new THREE.AmbientLight(0xddddff, 0.1);
 		// scene.add(ambi);
 		// standardlicht.push(ambi);
@@ -187,14 +192,53 @@ define([
 		scene.add(ambi2);
 		// standardlicht.push(ambi2);
 
-
+		/*
+		//Spot von oben, rot links
+		var spotRed = new THREE.SpotLight(0xaa0000, 1);
+		spotRed.position.set(-6,10,2);
+		spotRed.target.position.set(0, -0, 0);
+		scene.add(spotRed.target);
+		spotRed.castShadow = false;
+		spotRed.shadowCameraVisible = false;
+		// partylicht.push(spotRed);
+		scene.add(spotRed);
+		
+		//Spot von oben, blau rechs
+		var spotBlue = new THREE.SpotLight(0x0000aa, 1);
+		spotBlue.position.set(0,10,10);
+		spotBlue.target.position.set(0, -20, 0);
+		scene.add(spotBlue.target);
+		spotBlue.castShadow = false;
+		spotBlue.shadowCameraVisible = false;
+		// partylicht.push(spotBlue);
+		scene.add(spotBlue);
+		
+		// TÜRKIS AKZENT VOM BODEN AUS HINTEN RECHTS
+		var spotCyan = new THREE.SpotLight(0x33ffff, 1, 12);
+		spotCyan.position.set(8,-3,-0);
+		spotCyan.target.position.set(0, 0, 0);
+		scene.add(spotCyan.target);
+		spotCyan.castShadow = false;
+		spotCyan.shadowCameraVisible = false;
+		// partylicht.push(spotCyan);
+		scene.add(spotCyan);
+		
+		//BODEN STRAHLER VORNE RECHTS
+		var spotCyan2 = new THREE.SpotLight(0x33ffff, 1, 12);
+		spotCyan2.position.set(0,-3,8);
+		spotCyan2.target.position.set(0, 0, 0);
+		scene.add(spotCyan2.target);
+		spotCyan2.castShadow = false;
+		spotCyan2.shadowCameraVisible = false;
+		// partylicht.push(spotCyan2);
+		scene.add(spotCyan2);
+		*/
 
 		// LOAD JSON OBJECTS
 		var loader = new THREE.JSONLoader();
 		loader.load("assets/models/podest/podest.js", 
 			function callback(geometry, materials) {
 
-				var material = new THREE.MeshStandardMaterial();
 				var material = new THREE.MeshPhongMaterial();
 
 				var path = "assets/models/podest/";
@@ -227,88 +271,11 @@ define([
 			}
 		);
 
-		function loadModel( name, path, callback ) {
-
-			// remove existing Folders from the gui
-			for ( var j = 0; j < folder.length; j ++ ) {
-				dg.removeFolder( folder[ j ] );
-			}
-
-			// remove existing models from the scene
-			models.traverse( function ( child ) {
-				// if ( child instanceof THREE.SkinnedMesh ) {
-				models.remove( child );
-				// }
-			});
-
-			// Add new Folder to the GUI
-			var newFolder = dg.addFolder( name );
-			newFolder.open();
-			folder.push( name );
-
-			var colladaLoader = new THREE.ColladaLoader();
-			colladaLoader.options.convertUpAxis = true;
-			colladaLoader.load( path, function ( collada ) {
-
-				var dae = collada.scene;
-
-				dae.traverse( function ( child ) {
-
-					if (child instanceof THREE.Mesh) {
-						// enable casting shadows
-						child.castShadow = true;
-						// child.receiveShadow = true;
-					}
-
-					if ( child instanceof THREE.SkinnedMesh ) {
-						// console.log( child );
-						
-						scene.remove( skeletonHelper );
-						skeletonHelper = new THREE.SkeletonHelper( child );
-						skeletonHelper.material.linewidth = 2;
-						skeletonHelper.visible = false;
-						scene.add( skeletonHelper );
-
-						var animation = new THREE.Animation( child, child.geometry.animation );
-						animation.play();
-
-						newFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
-						var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
-						var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);
-
-					}
-
-					
-				} );
-
-				if ( callback !== undefined ) {
-					callback( dae );
-				}
-
-				dae.updateMatrix();
-				models.add( dae );
-				// scene.add( dae );
-				// console.log( dae );
-
-				// wache
-				// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
-
-				// var box = new THREE.Box3().setFromObject( mesh )
-				// var boundingBoxSize = box.max.sub( box.min );
-				// var height = boundingBoxSize.y;
-				// camera.position.set( 0, height, 4 );
-				// controls.target.copy( new THREE.Vector3( 0, 0.5, 0 ) );
-
-				tweenHelper.fitObject( dae );
-
-			} );
-		}
-
 	};
 
-	function isset(variable) {
-		return typeof variable !== typeof undefined ? true : false;
-	}
+	// function isset(variable) {
+	// 	return typeof variable !== typeof undefined ? true : false;
+	// }
 
 	// MAIN LOOP
     var animate = function () {
@@ -316,9 +283,7 @@ define([
 		TWEEN.update();
 		controls.update();
 		stats.update();
-		if ( isset(skeletonHelper) ) {
-			skeletonHelper.update();
-		}
+		modelLoader.update(); //update Skeleton helper
 		THREE.AnimationHandler.update( clock.getDelta() );
 
 		skycube.update( camera, renderer );

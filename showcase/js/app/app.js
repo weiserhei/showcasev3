@@ -248,58 +248,55 @@ define([
 	
 		function loadModel() {
 			clean( models );
+
+			var material = new THREE.MeshStandardMaterial();
+			// var material = new THREE.MeshPhongMaterial();
+
+			var path = "assets/models/wache/";
+			var tLoader = new THREE.TextureLoader();
+			var T_diffuse = tLoader.load( path+"colored_layout_v08.png" );
+			material.map = T_diffuse;
+
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
 			colladaLoader.load( 'assets/models/wache/wache.dae', function ( collada ) {
-
 				var dae = collada.scene;
-
 				dae.traverse( function ( child ) {
+
 					if ( child instanceof THREE.SkinnedMesh ) {
-
 						// console.log("instance of skinned", child);
-
 						var animation = new THREE.Animation( child, child.geometry.animation );
-
 						console.log( "animation", animation );
-
 						animation.play();
 					}
+
+
+					if (child instanceof THREE.Mesh) {
+
+						// apply custom material
+						// child.material = material; // WTF
+						// enable casting shadows
+						child.castShadow = true;
+						// child.receiveShadow = true;
+					}
+					
 				} );
+
 				// dae.scale.x = dae.scale.y = dae.scale.z = 0.002;
 				dae.updateMatrix();
+				models.add( dae );
 				// scene.add( dae );
 				// console.log( dae );
 
 				// wache
 				// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
 
-				var material = new THREE.MeshStandardMaterial();
-				// var material = new THREE.MeshPhongMaterial();
-
-				var path = "assets/models/wache/";
-				var tLoader = new THREE.TextureLoader();
-				var T_diffuse = tLoader.load( path+"colored_layout_v08.png" );
-				material.map = T_diffuse;
-
-				dae.traverse( function(child) {
-					if (child instanceof THREE.Mesh) {
-
-						// apply custom material
-						child.material = material;
-
-						// enable casting shadows
-						child.castShadow = true;
-						// child.receiveShadow = true;
-					}
-				});
-
 				// var box = new THREE.Box3().setFromObject( mesh )
 				// var boundingBoxSize = box.max.sub( box.min );
 				// var height = boundingBoxSize.y;
 				// camera.position.set( 0, height, 4 );
 				// controls.target.copy( new THREE.Vector3( 0, 0.5, 0 ) );
-				models.add( dae );
+
 				tweenHelper.fitObject( dae );
 
 			} );

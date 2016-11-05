@@ -10,6 +10,7 @@ define([
     "renderer",
     "controls",
     "stats",
+    "clock",
     "debugGUI",
     "tweenHelper",
     "skycube",
@@ -25,6 +26,7 @@ define([
              renderer, 
              controls, 
              stats, 
+             clock,
              debugGUI, 
              tweenHelper,
              skycube,
@@ -32,8 +34,6 @@ define([
              ) {
 	
 	'use strict';
-
-	var clock = new THREE.Clock();
 
 	// Start program
     var initialize = function () {

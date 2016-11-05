@@ -1,7 +1,7 @@
 /**
  * Setup the control method
  */
-define(["three","camera","container", "jquery", "renderer", "OrbitControls"], function (THREE,camera,container, $, renderer, OrbitControls) {
+define(["three","camera","container", "renderer", "OrbitControls"], function (THREE,camera,container, renderer, OrbitControls) {
 
     'use strict';
     // console.log("three", THREE);

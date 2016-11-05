@@ -64,7 +64,21 @@ define([
 				tweenHelper.resetCamera( 600 );
 			},
 			loadModel: function() {
-				loadModel( "Wache", "assets/models/wache/wache23_body_only.dae");
+				loadModel( "Wache", "assets/models/wache/wache23_body_only.dae", function callback( dae ) {
+
+					var material = new THREE.MeshStandardMaterial();
+					material.skinning = true;
+
+					dae.traverse( function ( child ) {
+
+						if ( child instanceof THREE.SkinnedMesh ) {
+							material.map = child.material.map;
+							child.material = material;
+						}
+						
+					} );
+
+				});
 			},
 			loadMonster: function() {
 				loadModel( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
@@ -232,8 +246,6 @@ define([
 			newFolder.open();
 			folder.push( name );
 
-			var material = new THREE.MeshLambertMaterial();
-
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
 			colladaLoader.load( path, function ( collada ) {
@@ -243,24 +255,20 @@ define([
 				dae.traverse( function ( child ) {
 
 					if (child instanceof THREE.Mesh) {
-
-						// console.log( child.material );
-						// apply custom material
-						// child.material = material; // WTF
-						
 						// enable casting shadows
 						child.castShadow = true;
 						// child.receiveShadow = true;
 					}
 
 					if ( child instanceof THREE.SkinnedMesh ) {
-
+						// console.log( child );
+						
 						scene.remove( skeletonHelper );
 						skeletonHelper = new THREE.SkeletonHelper( child );
 						skeletonHelper.material.linewidth = 2;
+						skeletonHelper.visible = false;
 						scene.add( skeletonHelper );
 
-						child.material = material; // WTF
 						var animation = new THREE.Animation( child, child.geometry.animation );
 						animation.play();
 

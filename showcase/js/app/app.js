@@ -38,6 +38,9 @@ define([
 	// Start program
     var initialize = function () {
 
+    	var models = new THREE.Group();
+    	scene.add( models );
+
 		// INITIAL CAMERA POSITION AND TARGET
 		camera.position.set( 0, 1, 4 );
 		controls.target.copy( new THREE.Vector3( 0, 0.5, 0 ) );
@@ -213,8 +216,18 @@ define([
 							
 			}
 		);
+
+		function clean( group ) {
+
+			group.traverse( function ( child ) {
+				// if ( child instanceof THREE.SkinnedMesh ) {
+				group.remove( child );
+				// }
+			});
+		}
 	
 		function loadMonster() {
+			clean( models );
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
 			colladaLoader.load( 'assets/models/monster/monster.dae', function ( collada ) {
@@ -227,11 +240,14 @@ define([
 				} );
 				dae.scale.x = dae.scale.y = dae.scale.z = 0.001;
 				dae.updateMatrix();
-				scene.add( dae );
+				models.add( dae );
+				// scene.add( dae );
+				tweenHelper.fitObject( dae );
 			} );
 		}
 	
 		function loadModel() {
+			clean( models );
 			var colladaLoader = new THREE.ColladaLoader();
 			colladaLoader.options.convertUpAxis = true;
 			colladaLoader.load( 'assets/models/wache/wache.dae', function ( collada ) {
@@ -252,7 +268,7 @@ define([
 				} );
 				// dae.scale.x = dae.scale.y = dae.scale.z = 0.002;
 				dae.updateMatrix();
-				scene.add( dae );
+				// scene.add( dae );
 				// console.log( dae );
 
 				// wache
@@ -283,7 +299,7 @@ define([
 				// var height = boundingBoxSize.y;
 				// camera.position.set( 0, height, 4 );
 				// controls.target.copy( new THREE.Vector3( 0, 0.5, 0 ) );
-
+				models.add( dae );
 				tweenHelper.fitObject( dae );
 
 			} );

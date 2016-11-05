@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.77.0 commit date:2016-02-26, commit time:12:32, hash:b594b25</authoring_tool>
     </contributor>
-    <created>2016-11-05T23:02:17</created>
-    <modified>2016-11-05T23:02:17</modified>
+    <created>2016-11-05T23:34:49</created>
+    <modified>2016-11-05T23:34:49</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -16,7 +16,7 @@
     </image>
   </library_images>
   <library_effects>
-    <effect id="body_001-effect">
+    <effect id="hellebarde_mat-effect">
       <profile_COMMON>
         <newparam sid="colored_layout_v08_png_001-surface">
           <surface type="2D">
@@ -54,8 +54,8 @@
     </effect>
   </library_effects>
   <library_materials>
-    <material id="body_001-material" name="body_001">
-      <instance_effect url="#body_001-effect"/>
+    <material id="hellebarde_mat-material" name="hellebarde_mat">
+      <instance_effect url="#hellebarde_mat-effect"/>
     </material>
   </library_materials>
   <library_geometries>
@@ -112,7 +112,7 @@
         <vertices id="richter_body_mesh_002-mesh-vertices">
           <input semantic="POSITION" source="#richter_body_mesh_002-mesh-positions"/>
         </vertices>
-        <polylist material="body_001-material" count="362">
+        <polylist material="hellebarde_mat-material" count="362">
           <input semantic="VERTEX" source="#richter_body_mesh_002-mesh-vertices" offset="0"/>
           <input semantic="NORMAL" source="#richter_body_mesh_002-mesh-normals" offset="1"/>
           <input semantic="TEXCOORD" source="#richter_body_mesh_002-mesh-map-0" offset="2" set="0"/>
@@ -607,7 +607,7 @@
         <instance_geometry url="#richter_body_mesh_002-mesh" name="hellebarde">
           <bind_material>
             <technique_common>
-              <instance_material symbol="body_001-material" target="#body_001-material"/>
+              <instance_material symbol="hellebarde_mat-material" target="#hellebarde_mat-material"/>
             </technique_common>
           </bind_material>
         </instance_geometry>

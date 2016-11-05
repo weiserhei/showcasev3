@@ -114,7 +114,7 @@ define([
 		spotlight2.position.set(0,15,0);
 		// spotlight2.shadowDarkness = 0.20;
 		spotlight2.castShadow = true;
-		spotlight2.shadow.mapSize.width = spotlight2.shadow.mapSize.height = 1024;
+		spotlight2.shadow.mapSize.width = spotlight2.shadow.mapSize.height = 2048;
 		spotlight2.shadow.camera.near = 10;
 		spotlight2.shadow.camera.far = 16;
 		spotlight2.shadow.camera.fov = 15;
@@ -247,6 +247,7 @@ define([
 		}
 	
 		function loadModel() {
+			
 			clean( models );
 
 			var material = new THREE.MeshStandardMaterial();
@@ -263,22 +264,27 @@ define([
 				var dae = collada.scene;
 				dae.traverse( function ( child ) {
 
+					if (child instanceof THREE.Mesh) {
+
+						// apply custom material
+						// child.material = material; // WTF
+						child.material.map = T_diffuse;
+						// enable casting shadows
+						child.castShadow = true;
+						// child.receiveShadow = true;
+					}
+
 					if ( child instanceof THREE.SkinnedMesh ) {
 						// console.log("instance of skinned", child);
 						var animation = new THREE.Animation( child, child.geometry.animation );
 						console.log( "animation", animation );
 						animation.play();
+
+						dg.add( animation, "play" ).name("Play Animation");
+						dg.add( animation, "stop" ).name("Stop Animation");
+
 					}
 
-
-					if (child instanceof THREE.Mesh) {
-
-						// apply custom material
-						// child.material = material; // WTF
-						// enable casting shadows
-						child.castShadow = true;
-						// child.receiveShadow = true;
-					}
 					
 				} );
 

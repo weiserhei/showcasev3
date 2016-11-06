@@ -67,11 +67,17 @@ define([
 					var hand_L = dae.getObjectByName("hand_L");
 					var hand_R = dae.getObjectByName("hand_R");
 
-					var item = dae.getObjectByName("item_L");
-					console.log("item", item);
+					var item_L = dae.getObjectByName("item.L");
+
+					console.log(item_L);
+					dg.add( item_L.position, "x" );
+					// console.log("item", item);
 
 					var weapons = new THREE.Group();
-					hand_L.add( weapons );
+					// weapons.applyMatrix( item_L.matrix );
+
+					// hand_L.add( weapons );
+					item_L.add( weapons );
 
 					dae.traverse( function ( child ) {
 
@@ -213,11 +219,12 @@ define([
 					// dae.scale.multiplyScalar( 0.01 );
 					// console.log( dae );
 
-					/*
+					
 					dae.traverse( function ( child ) {
 
 						if ( child instanceof THREE.Mesh ) {
 							console.log("child.material", child.material );
+							
 							if ( child.material instanceof THREE.MultiMaterial ) {
 
 								var mm = child.material;
@@ -225,15 +232,17 @@ define([
 
 									var newMaterial = new THREE.MeshPhongMaterial();
 									newMaterial.map = mm.materials[ i ].map;
+									newMaterial.normalMap = mm.materials[ i ].bumpMap;
 
 									mm.materials[ i ] = newMaterial;
 									
 								}
 							}
+
 						}
 						
 					} );
-					*/
+					
 
 				});
 			}

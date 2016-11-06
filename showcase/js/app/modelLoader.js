@@ -58,6 +58,7 @@ define([
 
 			var dae = collada.scene;
 
+			/*
 			// prep animations
 			var animations = collada.animations;
 			kfAnimationsLength = animations.length;
@@ -108,8 +109,9 @@ define([
 
 			}
 			// end prep
-
+			
 			console.log( "animations", kfAnimations );
+			*/
 
 			dae.traverse( function ( child ) {
 
@@ -136,19 +138,19 @@ define([
 
 					// newFolder.add( animation, "currentTime" );
 					newFolder.add( animation, "timeScale" ).max(2).min(0.1);
-					var aPlay = newFolder.add( kfAnimation, "play" ).name("Play "+animation.data.name);
-					var aStop = newFolder.add( kfAnimation, "stop" ).name("Stop "+animation.data.name);
+					var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
+					var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);
 
 				}
 				
 			} );
 
-			if ( callback !== undefined ) {
-				callback( dae );
-			}
 
 			dae.updateMatrix();
 			modelGroup.add( dae );
+			if ( callback !== undefined ) {
+				callback( dae );
+			}
 			// scene.add( dae );
 			// console.log( dae );
 
@@ -172,9 +174,9 @@ define([
 
 				// if ( progress >= 0 && progress < 48 ) {
 
-					for ( var i = 0; i < kfAnimationsLength; ++i ) {
-						kfAnimations[ i ].update( deltaTime );
-					}
+					// for ( var i = 0; i < kfAnimationsLength; ++i ) {
+					// 	kfAnimations[ i ].update( deltaTime );
+					// }
 
 				// }
 

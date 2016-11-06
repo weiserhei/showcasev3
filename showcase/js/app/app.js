@@ -34,6 +34,38 @@ define([
 	
 	'use strict';
 
+	// DAE doesnt handle materials properly
+	function getReplacedMaterials( material ) {
+
+		var parameters = { roughness: 0.7, metalness: 0.2 };
+
+		if ( material instanceof THREE.MultiMaterial ) {
+
+			var replacedMaterial = new THREE.MultiMaterial();
+
+			for( var i = 0; i < material.materials.length; i ++ ) {
+
+				// var newMaterial = new THREE.MeshPhongMaterial();
+				var newMaterial = new THREE.MeshStandardMaterial( parameters );
+				newMaterial.map = material.materials[ i ].map;
+				newMaterial.normalMap = material.materials[ i ].bumpMap;
+				console.log("material", newMaterial);
+				// mm.materials[ i ] = newMaterial;
+				replacedMaterial.materials.push( newMaterial );
+				
+			}
+		} else if ( material instanceof THREE.Material ) {
+			// var material = new THREE.MeshPhongMaterial();
+			var replacedMaterial = new THREE.MeshStandardMaterial( parameters );
+			replacedMaterial.skinning = true;
+			replacedMaterial.map = material.map;
+			replacedMaterial.normalMap = material.bumpMap;
+		}
+
+		return replacedMaterial;
+
+	}
+
 	// Start program
     var initialize = function () {
 
@@ -54,38 +86,31 @@ define([
 			},
 			loadModel: function() {
 				modelLoader.load( "Wache", "assets/models/wache/wache_body_only2.dae", function callback( dae ) {
-
-					var material = new THREE.MeshStandardMaterial();
-					material.skinning = true;
-
 					// wache
 					// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
 					// console.log( dae );
 
 					// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
 					// var hand_R = shoulder_R.children[0].children[0].children[0];
+					// var hand_R = dae.getObjectByName("hand_R");
 					var hand_L = dae.getObjectByName("hand_L");
-					var hand_R = dae.getObjectByName("hand_R");
+					console.log("hand",hand_L);
 
 					var item_L = dae.getObjectByName("item_L");
-
-					// hand_L.add(item_L);
 					console.log(item_L);
-					console.log("hand",hand_L);
-					dg.add( item_L.position, "x" );
-					
-					// console.log("item", item);
+					// dg.add( item_L.position, "x" );
+					// hand_L.add( item_L );
+					// item_L.updateMatrix();
 
 					var weapons = new THREE.Group();
 					// weapons.applyMatrix( item_L.matrix );
-
 					// hand_L.add( weapons );
 					item_L.add( weapons );
-
+					
 					dae.traverse( function ( child ) {
 
 						if ( child instanceof THREE.SkinnedMesh ) {
-							material.map = child.material.map;
+							var material = getReplacedMaterials( child.material );
 							child.material = material;
 						}
 						
@@ -222,26 +247,13 @@ define([
 					// dae.scale.multiplyScalar( 0.01 );
 					// console.log( dae );
 
-					
 					dae.traverse( function ( child ) {
 
 						if ( child instanceof THREE.Mesh ) {
-							console.log("child.material", child.material );
+							// console.log("child.material", child.material );
 							
-							if ( child.material instanceof THREE.MultiMaterial ) {
-
-								var mm = child.material;
-								for( var i = 0; i < mm.materials.length; i ++ ) {
-
-									var newMaterial = new THREE.MeshPhongMaterial();
-									newMaterial.map = mm.materials[ i ].map;
-									newMaterial.normalMap = mm.materials[ i ].bumpMap;
-
-									mm.materials[ i ] = newMaterial;
-									
-								}
-							}
-
+							var material = getReplacedMaterials( child.material );
+							child.material = material;
 						}
 						
 					} );

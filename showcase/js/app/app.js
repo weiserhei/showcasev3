@@ -195,16 +195,41 @@ define([
 					dae.scale.multiplyScalar( 0.01 );
 				});
 			},
-			loadHellebarde: function() {
-				modelLoader.load( "Hellebarde", "assets/models/wache/hellebarde.dae", function callback( dae ) {
+			wache2: function() {
+				modelLoader.load( "Wache 2", "assets/models/wache2/wache2.dae", function callback( dae ) {
 					// dae.scale.multiplyScalar( 0.01 );
+					console.log( dae );
+
+					/*
+					dae.traverse( function ( child ) {
+
+						if ( child instanceof THREE.Mesh ) {
+							console.log("child.material", child.material );
+							if ( child.material instanceof THREE.MultiMaterial ) {
+
+								var mm = child.material;
+								for( var i = 0; i < mm.materials.length; i ++ ) {
+
+									var newMaterial = new THREE.MeshPhongMaterial();
+									newMaterial.map = mm.materials[ i ].map;
+
+									mm.materials[ i ] = newMaterial;
+									
+								}
+							}
+						}
+						
+					} );
+					*/
+
 				});
 			}
 		};
+
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
+		dg.add( options, "wache2" ).name("Load Guard 2");
 		dg.add( options, "loadMonster" ).name("Load Monster");
-		dg.add( options, "loadHellebarde" ).name("Load Hellebarde");
 
 		// GRID FOR ORIENTATION
 		var gridXZ = new THREE.GridHelper( 3, 10, new THREE.Color( 0xff0000 ), new THREE.Color( 0xffffff ) );

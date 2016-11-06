@@ -60,7 +60,7 @@ define([
 
 					// wache
 					// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
-					console.log( dae );
+					// console.log( dae );
 
 					// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
 					// var hand_R = shoulder_R.children[0].children[0].children[0];
@@ -182,10 +182,11 @@ define([
 					} else {
 						var folder = dg.addFolder( name );
 					}
-
-					folder.add( options, "box" );
-					folder.add( options, "pistol" );
-					folder.add( options, "hellebarde" );
+					var equipment = folder.addFolder("Equipment");
+					equipment.open();
+					equipment.add( options, "box" );
+					equipment.add( options, "pistol" );
+					equipment.add( options, "hellebarde" );
 
 				});
 			},

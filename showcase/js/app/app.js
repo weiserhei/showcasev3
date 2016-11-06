@@ -53,7 +53,7 @@ define([
 				tweenHelper.resetCamera( 600 );
 			},
 			loadModel: function() {
-				modelLoader.load( "Wache", "assets/models/wache/wache23_body_only.dae", function callback( dae ) {
+				modelLoader.load( "Wache", "assets/models/wache/wache_body_only2.dae", function callback( dae ) {
 
 					var material = new THREE.MeshStandardMaterial();
 					material.skinning = true;
@@ -67,12 +67,13 @@ define([
 					var hand_L = dae.getObjectByName("hand_L");
 					var hand_R = dae.getObjectByName("hand_R");
 
-					var item_L = dae.getObjectByName("item.L");
+					var item_L = dae.getObjectByName("item_L");
 
 					// hand_L.add(item_L);
 					console.log(item_L);
 					console.log("hand",hand_L);
 					dg.add( item_L.position, "x" );
+					
 					// console.log("item", item);
 
 					var weapons = new THREE.Group();

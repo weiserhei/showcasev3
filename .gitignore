@@ -3,7 +3,7 @@
 *.sublime-workspace
 *.psd
 #assets/*
-three.js-r82/examples/
+three.js-r82/
 
 # Compiled source #
 ###################

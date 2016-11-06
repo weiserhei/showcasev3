@@ -14,7 +14,8 @@ define([
     "debugGUI",
     "tweenHelper",
     "skycube",
-    "modelLoader"
+    "modelLoader",
+    "ColladaLoader"
 ], function ( 
              THREE, 
              TWEEN, 
@@ -27,7 +28,8 @@ define([
              debugGUI, 
              tweenHelper,
              skycube,
-             modelLoader
+             modelLoader,
+             ColladaLoader
              ) {
 	
 	'use strict';
@@ -58,6 +60,15 @@ define([
 
 					// wache
 					// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
+					console.log( dae );
+
+					// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
+					// var hand_R = shoulder_R.children[0].children[0].children[0];
+					var hand_L = dae.getObjectByName("hand_L");
+					var hand_R = dae.getObjectByName("hand_R");
+
+					var weapons = new THREE.Group();
+					hand_L.add( weapons );
 
 					dae.traverse( function ( child ) {
 
@@ -67,6 +78,114 @@ define([
 						}
 						
 					} );
+
+					var options = {
+
+						box: function() {
+
+							var cube = new THREE.Mesh( new THREE.BoxGeometry(0.2, 0.2, 0.4), new THREE.MeshPhongMaterial( {transparent: true, opacity: 0.5} ) );
+							// console.log( hand_L );
+
+							weapons.traverse( function( child ) {
+								weapons.remove( child );
+							});
+
+							weapons.add( cube );
+
+						},
+
+						hellebarde: function() {
+
+							weapons.traverse( function( child ) {
+								weapons.remove( child );
+							});
+
+							var colladaLoader = new THREE.ColladaLoader();
+							colladaLoader.options.convertUpAxis = true;
+							var path = "assets/models/wache/hellebarde.dae";
+							colladaLoader.load( path, function ( collada ) {
+
+								var dae = collada.scene;
+								dae.name = "weapon";
+								dae.position.set( 0, 0.02, -0.1 ); // x = up/down, y = left/right
+								dae.rotateZ( Math.PI / 2 ); //adjust metal head top
+								dae.rotateY( -Math.PI / 2 ); //adjust sharp side
+								dae.updateMatrix();
+								weapons.add( dae );
+
+							});
+						},
+
+						pistol: function() { 
+
+							weapons.traverse( function( child ) {
+								weapons.remove( child );
+							});
+
+							var objLoader = new THREE.OBJLoader();
+							var graz = "assets/models/graz/Model/mang-final.obj";
+							objLoader.load( graz, function callback( group ) {
+
+								var textureLoader = new THREE.TextureLoader();
+								var texturePath = "assets/models/graz/JPG/";
+								var T_mang = textureLoader.load( texturePath + "mang.jpg" );
+								var T_mang_normal = textureLoader.load( texturePath + "mang_normal.jpg" );
+								var T_mang_gloss = textureLoader.load( texturePath + "mang_gloss.jpg" );
+								var T_mang_spec = textureLoader.load( texturePath + "mang_spec.jpg" );
+								var T_mang_exp = textureLoader.load( texturePath + "mang_exp.jpg" );
+
+								var envpath = "assets/textures/";
+								var textureName = '07.jpg'; //grey cube
+
+								var singleMap = textureLoader.load( envpath + textureName );
+								singleMap.mapping = THREE.EquirectangularReflectionMapping; // make single image use as cubemap
+
+								var material = new THREE.MeshStandardMaterial({
+									map: T_mang,
+									normalMap: T_mang_normal,
+									metalnessMap: T_mang_gloss,
+									roughnessMap: T_mang_spec,
+									envMap: singleMap,
+									metalness: 0.1,
+									// roughness: 0.7,
+									emissiveMap: T_mang_exp,
+									emissive: 0xAAAAAA,
+									color:0xFFFFFF
+								});
+
+								group.traverse( function( child ) {
+									if ( child instanceof THREE.Mesh ) {
+										child.material = material;
+									}
+								});
+
+								group.position.set( -0.05, 0.06, -0.23 ); // x = up/down, y = left/right
+								// dg.add( group.position, "x" ).max(1).min(-1);
+								// dg.add( group.position, "y" ).max(1).min(-1);
+								// dg.add( group.position, "z" ).max(1).min(-1);
+								group.rotateZ( Math.PI / 2 ); //adjust metal head top
+								group.rotateY( Math.PI / 2.2 ); //adjust sharp side
+								console.log( group );
+								group.scale.multiplyScalar( 0.001 );
+								group.name = "weapon";
+								weapons.add( group );
+
+							});
+
+						}
+					};
+					// pistol object
+			
+					var name = "Wache";
+					if ( dg.__folders[ name ] ) {
+						var folder = dg.__folders[ name ];
+					} else {
+						var folder = dg.addFolder( name );
+					}
+
+					folder.add( options, "box" );
+					folder.add( options, "pistol" );
+					folder.add( options, "hellebarde" );
 
 				});
 			},
@@ -93,15 +212,6 @@ define([
 		gridXZ.visible = false;
 
 		dg.add( gridXZ, "visible" ).name("Show Grid");
-
-		/*
-		var name = "Environment";
-		if ( dg.__folders[ name ] ) {
-			var folder = dg.__folders[ name ];
-		} else {
-			var folder = dg.addFolder( name );
-		}
-		*/
 
 		// var cube = new THREE.Mesh( new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffaa00 }) );
 		// scene.add( cube );

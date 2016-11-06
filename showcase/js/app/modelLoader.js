@@ -131,11 +131,11 @@ define([
 					newFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 
 					animation = new THREE.Animation( child, child.geometry.animation );
-					// animation.timeScale = 1/2 ; // add this
+					animation.timeScale = 1/2 ; // add this
 					animation.play( false );
 
 					// newFolder.add( animation, "currentTime" );
-					newFolder.add( kfAnimation, "timeScale" ).max(2).min(0.1);
+					newFolder.add( animation, "timeScale" ).max(2).min(0.1);
 					var aPlay = newFolder.add( kfAnimation, "play" ).name("Play "+animation.data.name);
 					var aStop = newFolder.add( kfAnimation, "stop" ).name("Stop "+animation.data.name);
 

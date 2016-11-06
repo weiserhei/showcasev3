@@ -55,7 +55,7 @@ define([
 				}
 
 				if ( child instanceof THREE.SkinnedMesh ) {
-					// console.log( child );
+					console.log( child );
 
 					scene.remove( skeletonHelper );
 					skeletonHelper = new THREE.SkeletonHelper( child );
@@ -64,8 +64,10 @@ define([
 					scene.add( skeletonHelper );
 
 					var animation = new THREE.Animation( child, child.geometry.animation );
+					animation.timeScale = 1/2 ; // add this
 					animation.play();
 
+					newFolder.add( animation, "timeScale" ).max(2).min(0.1);
 					newFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 					var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
 					var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);

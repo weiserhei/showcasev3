@@ -107,9 +107,11 @@ define([
 
 								var dae = collada.scene;
 								dae.name = "weapon";
+								/*
 								dae.position.set( 0, 0.02, -0.1 ); // x = up/down, y = left/right
 								dae.rotateZ( Math.PI / 2 ); //adjust metal head top
 								dae.rotateY( -Math.PI / 2 ); //adjust sharp side
+								*/
 								dae.updateMatrix();
 								weapons.add( dae );
 
@@ -159,6 +161,7 @@ define([
 									}
 								});
 
+								/*
 								group.position.set( -0.05, 0.06, -0.23 ); // x = up/down, y = left/right
 								// dg.add( group.position, "x" ).max(1).min(-1);
 								// dg.add( group.position, "y" ).max(1).min(-1);
@@ -166,6 +169,7 @@ define([
 								group.rotateZ( Math.PI / 2 ); //adjust metal head top
 								group.rotateY( Math.PI / 2.2 ); //adjust sharp side
 								console.log( group );
+								*/
 								group.scale.multiplyScalar( 0.001 );
 								group.name = "weapon";
 								weapons.add( group );
@@ -194,11 +198,16 @@ define([
 				modelLoader.load( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
 					dae.scale.multiplyScalar( 0.01 );
 				});
+			},			
+			loadBlackburn: function() {
+				modelLoader.load( "M24_R_Low_Poly_Version_dae", "assets/models/Zombie_low/Zombie_low.dae", function callback( dae ) {
+					// dae.scale.multiplyScalar( 0.01 );
+				});
 			},
 			wache2: function() {
 				modelLoader.load( "Wache 2", "assets/models/wache2/wache2.dae", function callback( dae ) {
 					// dae.scale.multiplyScalar( 0.01 );
-					console.log( dae );
+					// console.log( dae );
 
 					/*
 					dae.traverse( function ( child ) {
@@ -229,6 +238,7 @@ define([
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
 		dg.add( options, "wache2" ).name("Load Guard 2");
+		dg.add( options, "loadBlackburn" ).name("Load Blackburn");
 		dg.add( options, "loadMonster" ).name("Load Monster");
 
 		// GRID FOR ORIENTATION

@@ -205,7 +205,8 @@ define([
 				});
 			},
 			wache2: function() {
-				modelLoader.load( "Wache 2", "assets/models/wache2/wache2.dae", function callback( dae ) {
+				modelLoader.load( "Wache 2", "assets/models/wache2/wache2_2.dae", function callback( dae ) {
+				// modelLoader.load( "Wache 2", "assets/models/wache2/wache2.dae", function callback( dae ) {
 					// dae.scale.multiplyScalar( 0.01 );
 					// console.log( dae );
 

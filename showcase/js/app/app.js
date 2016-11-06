@@ -67,6 +67,9 @@ define([
 					var hand_L = dae.getObjectByName("hand_L");
 					var hand_R = dae.getObjectByName("hand_R");
 
+					var item = dae.getObjectByName("item_L");
+					console.log("item", item);
+
 					var weapons = new THREE.Group();
 					hand_L.add( weapons );
 
@@ -200,7 +203,7 @@ define([
 				});
 			},			
 			loadBlackburn: function() {
-				modelLoader.load( "M24_R_Low_Poly_Version_dae", "assets/models/Zombie_low/Zombie_low.dae", function callback( dae ) {
+				modelLoader.load( "Keyframe Model", "assets/models/pump/pump.dae", function callback( dae ) {
 					// dae.scale.multiplyScalar( 0.01 );
 				});
 			},
@@ -239,7 +242,7 @@ define([
 		dg.add( options, "reset" ).name("Reset Camera");
 		dg.add( options, "loadModel" ).name("Load Guard");
 		dg.add( options, "wache2" ).name("Load Guard 2");
-		dg.add( options, "loadBlackburn" ).name("Load Blackburn");
+		dg.add( options, "loadBlackburn" ).name("Load Keyframe Model");
 		dg.add( options, "loadMonster" ).name("Load Monster");
 
 		// GRID FOR ORIENTATION
@@ -433,11 +436,13 @@ define([
 	// MAIN LOOP
     var animate = function () {
 
+    	var deltaTime = clock.getDelta();
+
 		TWEEN.update();
 		controls.update();
 		stats.update();
-		modelLoader.update(); //update Skeleton helper
-		THREE.AnimationHandler.update( clock.getDelta() );
+		modelLoader.update( deltaTime ); //update Skeleton helper
+		THREE.AnimationHandler.update( deltaTime );
 
 		skycube.update( camera, renderer );
 		renderer.render( scene, camera );

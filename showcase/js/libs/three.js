@@ -7,6 +7,7 @@ define([
 		"threeCore",
 		"OrbitControls",
 		"OBJLoader",
+		// "MTLLoader",
 		"js/libs/three/loaders/collada/Animation.js",
 		"js/libs/three/loaders/collada/AnimationHandler.js",
 		"js/libs/three/loaders/collada/KeyFrameAnimation.js"

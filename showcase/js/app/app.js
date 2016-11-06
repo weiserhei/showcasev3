@@ -68,8 +68,10 @@ define([
 					var hand_R = dae.getObjectByName("hand_R");
 
 					var item_L = dae.getObjectByName("item.L");
-					hand_L.add(item_L);
+
+					// hand_L.add(item_L);
 					console.log(item_L);
+					console.log("hand",hand_L);
 					dg.add( item_L.position, "x" );
 					// console.log("item", item);
 

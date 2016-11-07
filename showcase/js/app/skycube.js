@@ -1,7 +1,7 @@
 /**
  * Skycube
  */
-define(["three", "camera", "renderer"], function ( THREE, camera, renderer ){
+define(["three", "camera", "renderer", "loadingManager"], function ( THREE, camera, renderer, loadingManager ){
 
     // 'use strict';
     /*
@@ -36,7 +36,7 @@ define(["three", "camera", "renderer"], function ( THREE, camera, renderer ){
 	})();
 	*/
 
-	var cubeTextureLoader = new THREE.CubeTextureLoader();
+	var cubeTextureLoader = new THREE.CubeTextureLoader( loadingManager );
 
 	cubeTextureLoader.setPath( "assets/textures/cube/SwedishRoyalCastle/" );
 	var sunnySkyCube = cubeTextureLoader.load( [
@@ -52,7 +52,7 @@ define(["three", "camera", "renderer"], function ( THREE, camera, renderer ){
 	// 	"pz.jpg", "nz.jpg"
 	// ] );
 
-	var textureLoader = new THREE.TextureLoader();
+	var textureLoader = new THREE.TextureLoader( loadingManager );
 
 	var envpath = "assets/textures/";
 

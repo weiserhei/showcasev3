@@ -14,8 +14,10 @@ define([
     "debugGUI",
     "tweenHelper",
     "skycube",
-    "modelLoader",
-    "ColladaLoader"
+    "ColladaLoader",
+    "Character",
+    "CharacterController",
+    "loadingManager"
 ], function ( 
              THREE, 
              TWEEN, 
@@ -28,11 +30,17 @@ define([
              debugGUI, 
              tweenHelper,
              skycube,
-             modelLoader,
-             ColladaLoader
+             ColladaLoader,
+             Character,
+             CharacterController,
+             loadingManager
              ) {
 	
 	'use strict';
+
+	var characterController; // update sekeletons, add gui button
+	var deltaTime = 0; // loop variable
+
 
 	// DAE doesnt handle materials properly
 	function getReplacedMaterials( material ) {
@@ -49,11 +57,12 @@ define([
 				var newMaterial = new THREE.MeshStandardMaterial( parameters );
 				newMaterial.map = material.materials[ i ].map;
 				newMaterial.normalMap = material.materials[ i ].bumpMap;
-				console.log("material", newMaterial);
+				// console.log("material", newMaterial);
 				// mm.materials[ i ] = newMaterial;
 				replacedMaterial.materials.push( newMaterial );
 				
 			}
+
 		} else if ( material instanceof THREE.Material ) {
 			// var material = new THREE.MeshPhongMaterial();
 			var replacedMaterial = new THREE.MeshStandardMaterial( parameters );
@@ -83,191 +92,10 @@ define([
 		var options = {
 			reset: function() { 
 				tweenHelper.resetCamera( 600 );
-			},
-			loadModel: function() {
-				modelLoader.load( "Wache", "assets/models/wache/wache_body_only2.dae", function callback( dae ) {
-					// wache
-					// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
-					// console.log( dae );
-
-					// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
-					// var hand_R = shoulder_R.children[0].children[0].children[0];
-					// var hand_R = dae.getObjectByName("hand_R");
-					var hand_L = dae.getObjectByName("hand_L");
-					console.log("hand",hand_L);
-
-					var item_L = dae.getObjectByName("item_L");
-					console.log(item_L);
-					// dg.add( item_L.position, "x" );
-					// hand_L.add( item_L );
-					// item_L.updateMatrix();
-
-					var weapons = new THREE.Group();
-					// weapons.applyMatrix( item_L.matrix );
-					// hand_L.add( weapons );
-					item_L.add( weapons );
-					
-					dae.traverse( function ( child ) {
-
-						if ( child instanceof THREE.SkinnedMesh ) {
-							var material = getReplacedMaterials( child.material );
-							child.material = material;
-						}
-						
-					} );
-
-					var options = {
-
-						box: function() {
-
-							var cube = new THREE.Mesh( new THREE.BoxGeometry(0.2, 0.2, 0.4), new THREE.MeshPhongMaterial( {transparent: true, opacity: 0.5} ) );
-							// console.log( hand_L );
-
-							weapons.traverse( function( child ) {
-								weapons.remove( child );
-							});
-
-							weapons.add( cube );
-
-						},
-
-						hellebarde: function() {
-
-							weapons.traverse( function( child ) {
-								weapons.remove( child );
-							});
-
-							var colladaLoader = new THREE.ColladaLoader();
-							colladaLoader.options.convertUpAxis = true;
-							var path = "assets/models/wache/hellebarde.dae";
-							colladaLoader.load( path, function ( collada ) {
-
-								var dae = collada.scene;
-								dae.name = "weapon";
-								/*
-								dae.position.set( 0, 0.02, -0.1 ); // x = up/down, y = left/right
-								dae.rotateZ( Math.PI / 2 ); //adjust metal head top
-								dae.rotateY( -Math.PI / 2 ); //adjust sharp side
-								*/
-								dae.updateMatrix();
-								weapons.add( dae );
-
-							});
-						},
-
-						pistol: function() { 
-
-							weapons.traverse( function( child ) {
-								weapons.remove( child );
-							});
-
-							var objLoader = new THREE.OBJLoader();
-							var graz = "assets/models/graz/Model/mang-final.obj";
-							objLoader.load( graz, function callback( group ) {
-
-								var textureLoader = new THREE.TextureLoader();
-								var texturePath = "assets/models/graz/JPG/";
-								var T_mang = textureLoader.load( texturePath + "mang.jpg" );
-								var T_mang_normal = textureLoader.load( texturePath + "mang_normal.jpg" );
-								var T_mang_gloss = textureLoader.load( texturePath + "mang_gloss.jpg" );
-								var T_mang_spec = textureLoader.load( texturePath + "mang_spec.jpg" );
-								var T_mang_exp = textureLoader.load( texturePath + "mang_exp.jpg" );
-
-								var envpath = "assets/textures/";
-								var textureName = '07.jpg'; //grey cube
-
-								var singleMap = textureLoader.load( envpath + textureName );
-								singleMap.mapping = THREE.EquirectangularReflectionMapping; // make single image use as cubemap
-
-								var material = new THREE.MeshStandardMaterial({
-									map: T_mang,
-									normalMap: T_mang_normal,
-									metalnessMap: T_mang_gloss,
-									roughnessMap: T_mang_spec,
-									envMap: singleMap,
-									metalness: 0.1,
-									// roughness: 0.7,
-									emissiveMap: T_mang_exp,
-									emissive: 0xAAAAAA,
-									color:0xFFFFFF
-								});
-
-								group.traverse( function( child ) {
-									if ( child instanceof THREE.Mesh ) {
-										child.material = material;
-									}
-								});
-
-								/*
-								group.position.set( -0.05, 0.06, -0.23 ); // x = up/down, y = left/right
-								// dg.add( group.position, "x" ).max(1).min(-1);
-								// dg.add( group.position, "y" ).max(1).min(-1);
-								// dg.add( group.position, "z" ).max(1).min(-1);
-								group.rotateZ( Math.PI / 2 ); //adjust metal head top
-								group.rotateY( Math.PI / 2.2 ); //adjust sharp side
-								console.log( group );
-								*/
-								group.scale.multiplyScalar( 0.001 );
-								group.name = "weapon";
-								weapons.add( group );
-
-							});
-
-						}
-					};
-					// pistol object
-			
-					var name = "Wache";
-					if ( dg.__folders[ name ] ) {
-						var folder = dg.__folders[ name ];
-					} else {
-						var folder = dg.addFolder( name );
-					}
-					var equipment = folder.addFolder("Equipment");
-					equipment.open();
-					equipment.add( options, "box" );
-					equipment.add( options, "pistol" );
-					equipment.add( options, "hellebarde" );
-
-				});
-			},
-			loadMonster: function() {
-				modelLoader.load( "Monster", "assets/models/monster/monster.dae", function callback( dae ) {
-					dae.scale.multiplyScalar( 0.01 );
-				});
-			},			
-			loadBlackburn: function() {
-				modelLoader.load( "Keyframe Model", "assets/models/pump/pump.dae", function callback( dae ) {
-					// dae.scale.multiplyScalar( 0.01 );
-				});
-			},
-			wache2: function() {
-				modelLoader.load( "Wache 2", "assets/models/wache2/wache2_2.dae", function callback( dae ) {
-				// modelLoader.load( "Wache 2", "assets/models/wache2/wache2.dae", function callback( dae ) {
-					// dae.scale.multiplyScalar( 0.01 );
-					// console.log( dae );
-
-					dae.traverse( function ( child ) {
-
-						if ( child instanceof THREE.Mesh ) {
-							// console.log("child.material", child.material );
-							
-							var material = getReplacedMaterials( child.material );
-							child.material = material;
-						}
-						
-					} );
-					
-
-				});
 			}
 		};
 
 		dg.add( options, "reset" ).name("Reset Camera");
-		dg.add( options, "loadModel" ).name("Load Guard");
-		dg.add( options, "wache2" ).name("Load Guard 2");
-		dg.add( options, "loadBlackburn" ).name("Load Keyframe Model");
-		dg.add( options, "loadMonster" ).name("Load Monster");
 
 		// GRID FOR ORIENTATION
 		var gridXZ = new THREE.GridHelper( 3, 10, new THREE.Color( 0xff0000 ), new THREE.Color( 0xffffff ) );
@@ -276,6 +104,181 @@ define([
 		gridXZ.visible = false;
 
 		dg.add( gridXZ, "visible" ).name("Show Grid");
+
+
+		characterController = new CharacterController();
+
+		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
+			dae.scale.multiplyScalar( 0.01 );
+		} );
+		// load manually or let CharacterController handle it
+		// monster.load();
+		characterController.add( monster );
+
+		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
+		characterController.add( wache );
+
+		function callbackWache ( dae ) {
+			// wache
+			// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
+			// console.log( dae );
+
+			// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
+			// var hand_R = shoulder_R.children[0].children[0].children[0];
+			// var hand_R = dae.getObjectByName("hand_R");
+			var hand_L = dae.getObjectByName("hand_L");
+			console.log("hand",hand_L);
+
+			var item_L = dae.getObjectByName("item_L");
+			console.log(item_L);
+			// dg.add( item_L.position, "x" );
+			// hand_L.add( item_L );
+			// item_L.updateMatrix();
+
+			var weapons = new THREE.Group();
+			// weapons.applyMatrix( item_L.matrix );
+			// hand_L.add( weapons );
+			item_L.add( weapons );
+			
+			dae.traverse( function ( child ) {
+
+				if ( child instanceof THREE.SkinnedMesh ) {
+					var material = getReplacedMaterials( child.material );
+					child.material = material;
+				}
+				
+			} );
+
+			var options = {
+
+				box: function() {
+
+					var cube = new THREE.Mesh( new THREE.BoxGeometry(0.2, 0.2, 0.4), new THREE.MeshPhongMaterial( {transparent: true, opacity: 0.5} ) );
+					// console.log( hand_L );
+
+					weapons.traverse( function( child ) {
+						weapons.remove( child );
+					});
+
+					weapons.add( cube );
+
+				},
+
+				hellebarde: function() {
+
+					weapons.traverse( function( child ) {
+						weapons.remove( child );
+					});
+
+					var colladaLoader = new THREE.ColladaLoader();
+					colladaLoader.options.convertUpAxis = true;
+					var path = "assets/models/wache/hellebarde.dae";
+					colladaLoader.load( path, function ( collada ) {
+
+						var dae = collada.scene;
+						dae.name = "weapon";
+						/*
+						dae.position.set( 0, 0.02, -0.1 ); // x = up/down, y = left/right
+						dae.rotateZ( Math.PI / 2 ); //adjust metal head top
+						dae.rotateY( -Math.PI / 2 ); //adjust sharp side
+						*/
+						dae.updateMatrix();
+						weapons.add( dae );
+
+					});
+				},
+
+				pistol: function() { 
+
+					weapons.traverse( function( child ) {
+						weapons.remove( child );
+					});
+
+					var objLoader = new THREE.OBJLoader();
+					var graz = "assets/models/graz/Model/mang-final.obj";
+					objLoader.load( graz, function callback( group ) {
+
+						var textureLoader = new THREE.TextureLoader();
+						var texturePath = "assets/models/graz/JPG/";
+						var T_mang = textureLoader.load( texturePath + "mang.jpg" );
+						var T_mang_normal = textureLoader.load( texturePath + "mang_normal.jpg" );
+						var T_mang_gloss = textureLoader.load( texturePath + "mang_gloss.jpg" );
+						var T_mang_spec = textureLoader.load( texturePath + "mang_spec.jpg" );
+						var T_mang_exp = textureLoader.load( texturePath + "mang_exp.jpg" );
+
+						var envpath = "assets/textures/";
+						var textureName = '07.jpg'; //grey cube
+
+						var singleMap = textureLoader.load( envpath + textureName );
+						singleMap.mapping = THREE.EquirectangularReflectionMapping; // make single image use as cubemap
+
+						var material = new THREE.MeshStandardMaterial({
+							map: T_mang,
+							normalMap: T_mang_normal,
+							metalnessMap: T_mang_gloss,
+							roughnessMap: T_mang_spec,
+							envMap: singleMap,
+							metalness: 0.1,
+							// roughness: 0.7,
+							emissiveMap: T_mang_exp,
+							emissive: 0xAAAAAA,
+							color:0xFFFFFF
+						});
+
+						group.traverse( function( child ) {
+							if ( child instanceof THREE.Mesh ) {
+								child.material = material;
+							}
+						});
+
+						/*
+						group.position.set( -0.05, 0.06, -0.23 ); // x = up/down, y = left/right
+						// dg.add( group.position, "x" ).max(1).min(-1);
+						// dg.add( group.position, "y" ).max(1).min(-1);
+						// dg.add( group.position, "z" ).max(1).min(-1);
+						group.rotateZ( Math.PI / 2 ); //adjust metal head top
+						group.rotateY( Math.PI / 2.2 ); //adjust sharp side
+						console.log( group );
+						*/
+						group.scale.multiplyScalar( 0.001 );
+						group.name = "weapon";
+						weapons.add( group );
+
+					});
+
+				}
+			};
+			// pistol object
+	
+			var name = "Wache";
+			if ( dg.__folders[ name ] ) {
+				var folder = dg.__folders[ name ];
+			} else {
+				var folder = dg.addFolder( name );
+			}
+			var equipment = folder.addFolder("Equipment");
+			equipment.open();
+			equipment.add( options, "box" );
+			equipment.add( options, "pistol" );
+			equipment.add( options, "hellebarde" );
+
+		}
+
+		var wache2 = new Character( "assets/models/wache2/wache2_2.dae", "Wache 2", callbackWache2 );
+		characterController.add( wache2 );
+
+		function callbackWache2( dae ) {
+			dae.traverse( function ( child ) {
+				if ( child instanceof THREE.Mesh ) {
+					// console.log("child.material", child.material );
+					var material = getReplacedMaterials( child.material );
+					child.material = material;
+				}
+			} );
+		}
+
+		var pumpe = new Character( "assets/models/pump/pump.dae", "Keyframe Model" );
+		characterController.add( pumpe );
 
 		// var cube = new THREE.Mesh( new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffaa00 }) );
 		// scene.add( cube );
@@ -415,14 +418,14 @@ define([
 		*/
 
 		// LOAD JSON OBJECTS
-		var loader = new THREE.JSONLoader();
+		var loader = new THREE.JSONLoader( loadingManager );
 		loader.load("assets/models/podest/podest.js", 
 			function callback(geometry, materials) {
 
 				var material = new THREE.MeshPhongMaterial();
 
 				var path = "assets/models/podest/";
-				var tLoader = new THREE.TextureLoader();
+				var tLoader = new THREE.TextureLoader( loadingManager );
 				var T_diffuse = tLoader.load( path+"wood_mac.jpg" );
 				var T_normal = tLoader.load( path+"wood_normal.jpg");
 				var T_specular = tLoader.load( path+"11357.jpg" );
@@ -453,19 +456,19 @@ define([
 
 	};
 
-	// function isset(variable) {
-	// 	return typeof variable !== typeof undefined ? true : false;
-	// }
+	loadingManager.onLoad = function() {
+		animate();
+	};
 
 	// MAIN LOOP
     var animate = function () {
 
-    	var deltaTime = clock.getDelta();
+    	deltaTime = clock.getDelta();
 
 		TWEEN.update();
 		controls.update();
 		stats.update();
-		modelLoader.update( deltaTime ); //update Skeleton helper
+		characterController.update( deltaTime );
 		THREE.AnimationHandler.update( deltaTime );
 
 		skycube.update( camera, renderer );
@@ -479,4 +482,5 @@ define([
         initialize: initialize,
         animate: animate
     }
+
 });

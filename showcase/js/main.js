@@ -52,7 +52,9 @@ require([
 		
 		// The "app" dependency is passed in as "App"
 		App.initialize();
-		App.animate();
+        
+        // animate is called from the loading manager
+		// App.animate();
 
 	}
 	

@@ -181,8 +181,10 @@ define([
 			dae.traverse( function ( child ) {
 
 				if ( child instanceof THREE.SkinnedMesh ) {
+
 					var material = getReplacedMaterials( child.material );
 					child.material = material;
+
 				}
 				
 			} );

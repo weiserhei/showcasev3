@@ -1,8 +1,8 @@
 /**
  * Setup the control method
  */
-define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListener"], 
-       function (THREE, debugGUI, scene, tweenHelper, ColladaLoader, audioListener) {
+define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListener", "StateMachine"], 
+       function (THREE, debugGUI, scene, tweenHelper, ColladaLoader, audioListener, StateMachine) {
 
     'use strict';
 
@@ -73,8 +73,122 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
     		return this._name;
     	},
     	update: function( deltaTime ) {
-			// skeletonHelper.update();
+			skeletonHelper.update();
     	},
+    	setupFSM: function( animation, animationFunctions, loop ) {
+
+			// states: idle, walking, running, fighting, dead
+			// events: reset, move, moveFast, attack, die
+
+			var fsm = StateMachine.create({
+
+				initial: 'idle',
+				events: [
+					{ name: 'reset', from: '*',  to: 'idle' },
+					{ name: 'move', from: ['idle','running', 'walking','fighting'], to: 'walking' },
+					{ name: 'moveFast', from: ['idle','running','walking'], to: 'running'   },
+					{ name: 'attack', from: ['idle','walking'], to: 'fighting' },
+					{ name: 'die', from: '*', to: 'dead' },
+				],
+				callbacks: {
+					// constrain safe door to itemslot
+					// fsm.onafterinteract = function( event, from, to, msg ) {
+					onenterstate: function( event, from, to ) {
+
+						// var action = this.transitions()[ 0 ];
+
+					},
+					onbeforeattack: function(event, from, to) { 
+
+						// if ( this.is( "locked" ) ) {
+						//     // some UI action, minigame, unlock this shit
+						//    	// return if itemslot isnt filled
+						//     if ( constraint.active === true ) {
+						//     	sounds.beep.play();
+						//     	// cancel transition
+						//     	return false;
+						//     }
+
+						// }
+
+					},
+					onidle: function() {
+						animationFunctions.idle();
+						animation.play( loop.start, loop.end );
+					},
+					onwalking: function() {
+						animationFunctions.walk();
+						animation.play( loop.start, loop.end );
+					},
+					onrunning: function() {
+						animationFunctions.run();
+						animation.play( loop.start, loop.end );
+					},
+					onfighting: function(event, from, to, msg) { 
+						animationFunctions.fight();
+						animation.play( loop.start, loop.end );
+					},
+					ondead: function() {
+						animationFunctions.die();
+						animation.play( loop.start, loop.end );
+					},
+					onreset: function() {
+						animationFunctions.reset();
+					},
+					// onleavestate: function( event, from, to, msg ) {
+					// onafterinteract: function( event, from, to, msg ) {
+					// 	console.log("leaving state", event, from, to, fsm.transitions() );
+
+					// },
+					onleavelocked: function() {
+
+						/*
+						tweens.wheel.onComplete( function() { 
+							fsm.transition(); 
+							safesound.safe_door.stop();						
+						} );
+						tweens.unlock.chain( tweens.wheel );
+						tweens.unlock.onComplete( function() { 
+
+							safesound.safe_door.play(); 
+							// broken
+							// sound1.gain.gain.exponentialRampToValueAtTime( 0.01, sound1.context.currentTime + 2.5 );
+
+						} );
+						tweens.unlock.onStart( 
+							function() { 
+								// sound is too short for the animation :s
+								// setTimeout( function() { sound4.play(); }, 300 );
+								safesound.click_slow.play() 
+							} 
+						);
+						tweens.unlock.start();
+
+						return StateMachine.ASYNC;
+						*/
+
+					},
+					onbeforereset: function( event, from, to ) {
+
+					},
+				}
+
+			});
+	
+			var folder = dg.addFolder("StateMachine");
+			folder.open();
+
+			folder.add( fsm, "current" ).name("Current State").listen();
+			folder.add( fsm, "reset" ).name("Reset");
+
+			folder.add( fsm, "move" ).name("Move");
+			folder.add( fsm, "moveFast" ).name("MoveFast");
+			folder.add( fsm, "attack" ).name("Attack");
+			folder.add( fsm, "die" ).name("die");
+
+			return fsm;
+
+		},
     	load: function () {
 
 			cleanUp();
@@ -192,12 +306,6 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 						// animFolder.add( loop, "start" ).max(max).min(0);
 						// animFolder.add( loop, "end" ).max(max).min(0);
 
-						// use this as trigger
-						// when animations doesnt run in a loop
-						function play( start ) {
-							// animation.stop();
-							// animation.play( start );
-						}
 
 						var knife = new THREE.Audio( audioListener );
 						scene.add( knife );						
@@ -217,28 +325,78 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 								step.setBuffer( audioBuffer );
 							});
 
+						// use this as trigger
+						// when animations doesnt run in a loop
+						function play( start ) {
+							// animation.stop();
+							// animation.play( start );
+						}
+
 						var obj = { 
-									idle:function(){ loop.start = 0; loop.end = 40/fps; loop.sound = null; play( loop.start ); },
-									walk:function(){ loop.start = 40/fps; loop.end = 90/fps; loop.sound = step; play( loop.start ); },
-									run:function(){ loop.start = 90/fps; loop.end = 120/fps; loop.sound = step; play( loop.start ); },
-									fight:function(){ loop.start = 120/fps; loop.end = 171/fps; loop.sound = knife;  play( loop.start ); },
-									die:function(){ loop.start = 171/fps; loop.end = max; loop.sound = die; play( loop.start ); },
-									reset:function(){ loop.start = 0; loop.end = max; loop.sound = null; play( loop.start ); }
+									idle:function(){ 
+											loop.start = 0; 
+											loop.end = 40/fps; 
+											loop.sound = null; 
+											play( loop.start ); 
+										},
+									walk:function(){ 
+											loop.start = 40/fps; 
+											loop.end = 90/fps; 
+											loop.sound = step; 
+											play( loop.start ); 
+										},
+									run:function(){ 
+											loop.start = 90/fps; 
+											loop.end = 120/fps; 
+											loop.sound = step; 
+											play( loop.start ); 
+										},
+									fight:function(){ 
+											loop.start = 120/fps; 
+											loop.end = 171/fps; 
+											loop.sound = knife; 
+											play( loop.start ); 
+										},
+									die:function(){ 
+											loop.start = 171/fps; 
+											loop.end = max; 
+											loop.sound = die; 
+											play( loop.start ); 
+										},
+									reset:function(){ 
+											loop.start = 0; 
+											loop.end = max; 
+											loop.sound = null; 
+											play( loop.start ); 
+										}
 								};
 
-						animFolder.add( obj, "idle" );
-						animFolder.add( obj, "walk" );
-						animFolder.add( obj, "run" );
-						animFolder.add( obj, "fight" );
-						animFolder.add( obj, "die" );
-						animFolder.add( obj, "reset" );
+						var name = "Wache";
+						if ( dg.__folders[ name ] ) {
+							var folder = dg.__folders[ name ];
+						} else {
+							var folder = dg.addFolder( name );
+						}
+
+						var name = "Animation";
+						if ( folder.__folders[ name ] ) {
+							var animFolder = folder.__folders[ name ];
+						} else {
+							var animFolder = folder.addFolder( name );
+						}
+
+						for ( var k in obj ) {
+							animFolder.add( obj, k );
+						}
 
 						// start with idle animation
 						obj.idle();
 
+						// self.setupFSM( animation, obj, loop );
+
 						self.update = function( deltaTime ) {
 
-							skeletonHelper.update();
+							// skeletonHelper.update();
 
 					        if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
 					            animation.stop();
@@ -264,7 +422,6 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 			    			// 161 hold idle 
 			    			// 171  bis 191 mist
 							// 191 bis 211 die ani
-
 					}
 					
 				} );

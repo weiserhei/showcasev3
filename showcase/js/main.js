@@ -29,6 +29,7 @@ require.config({
         'detector': "../libs/three/Detector",
         'ColladaLoader': "../libs/three/loaders/ColladaLoader",
         'OBJLoader': "../libs/three/loaders/OBJLoader",
+        "StateMachine": "../libs/state-machine.min",
         // 'MTLLoader': "../libs/three/loaders/MTLLoader",
         // --- end THREE sub-components
 

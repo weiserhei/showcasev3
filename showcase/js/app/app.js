@@ -17,7 +17,8 @@ define([
     "ColladaLoader",
     "Character",
     "CharacterController",
-    "loadingManager"
+    "loadingManager",
+    "audioListener"
 ], function ( 
              THREE, 
              TWEEN, 
@@ -33,7 +34,8 @@ define([
              ColladaLoader,
              Character,
              CharacterController,
-             loadingManager
+             loadingManager,
+             audioListener
              ) {
 	
 	'use strict';
@@ -105,6 +107,42 @@ define([
 
 		dg.add( gridXZ, "visible" ).name("Show Grid");
 
+		// LOAD JSON OBJECTS
+		var loader = new THREE.JSONLoader( loadingManager );
+		loader.load("assets/models/podest/podest.js", 
+			function callback(geometry, materials) {
+
+				var material = new THREE.MeshPhongMaterial();
+
+				var path = "assets/models/podest/";
+				var tLoader = new THREE.TextureLoader( loadingManager );
+				var T_diffuse = tLoader.load( path+"wood_mac.jpg" );
+				var T_normal = tLoader.load( path+"wood_normal.jpg");
+				var T_specular = tLoader.load( path+"11357.jpg" );
+
+				material.map = T_diffuse;
+				material.specularMap = T_specular;
+				material.normalMap = T_normal;
+
+				material.shininess = 5;
+				material.specular.setHex( 0x111111 );
+
+				var mesh = new THREE.Mesh( geometry, material );
+				mesh.scale.multiplyScalar( 0.6 );
+
+				var box = new THREE.Box3().setFromObject( mesh )
+				var boundingBoxSize = box.max.sub( box.min );
+				var height = boundingBoxSize.y;
+				mesh.position.set(0, -height/2, 0);
+				
+				mesh.rotation.y = Math.PI / 2.5 ;
+				mesh.receiveShadow = true;
+				scene.add( mesh );
+
+				dg.add( mesh, "visible" ).name("Show Stand");
+							
+			}
+		);
 
 		characterController = new CharacterController();
 
@@ -416,43 +454,6 @@ define([
 		// partylicht.push(spotCyan2);
 		scene.add(spotCyan2);
 		*/
-
-		// LOAD JSON OBJECTS
-		var loader = new THREE.JSONLoader( loadingManager );
-		loader.load("assets/models/podest/podest.js", 
-			function callback(geometry, materials) {
-
-				var material = new THREE.MeshPhongMaterial();
-
-				var path = "assets/models/podest/";
-				var tLoader = new THREE.TextureLoader( loadingManager );
-				var T_diffuse = tLoader.load( path+"wood_mac.jpg" );
-				var T_normal = tLoader.load( path+"wood_normal.jpg");
-				var T_specular = tLoader.load( path+"11357.jpg" );
-
-				material.map = T_diffuse;
-				material.specularMap = T_specular;
-				material.normalMap = T_normal;
-
-				material.shininess = 5;
-				material.specular.setHex( 0x111111 );
-
-				var mesh = new THREE.Mesh( geometry, material );
-				mesh.scale.multiplyScalar( 0.6 );
-
-				var box = new THREE.Box3().setFromObject( mesh )
-				var boundingBoxSize = box.max.sub( box.min );
-				var height = boundingBoxSize.y;
-				mesh.position.set(0, -height/2, 0);
-				
-				mesh.rotation.y = Math.PI / 2.5 ;
-				mesh.receiveShadow = true;
-				scene.add( mesh );
-
-				dg.add( mesh, "visible" ).name("Show Stand");
-							
-			}
-		);
 
 	};
 

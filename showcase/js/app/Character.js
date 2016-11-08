@@ -1,8 +1,8 @@
 /**
  * Setup the control method
  */
-define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader"], 
-       function (THREE, debugGUI, scene, tweenHelper, ColladaLoader) {
+define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListener"], 
+       function (THREE, debugGUI, scene, tweenHelper, ColladaLoader, audioListener) {
 
     'use strict';
 
@@ -171,20 +171,99 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader"],
 						skeletonHelper.material.linewidth = 2;
 						skeletonHelper.visible = false;
 						scene.add( skeletonHelper );
-						newFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
-
-						self.update = function() {
-							skeletonHelper.update();
-						}
+						var animFolder = newFolder.addFolder("Animation");
+						animFolder.open();
+						animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 
 						var animation = new THREE.Animation( child, child.geometry.animation );
-						animation.timeScale = 1/2 ; // add this
-						animation.play( false );
+						// animation.timeScale = 1/2 ; // add this
+						animation.play();
+						console.log( "anim", animation );
 
-						// newFolder.add( animation, "currentTime" );
-						newFolder.add( animation, "timeScale" ).max(2).min(0.1);
-						var aPlay = newFolder.add( animation, "play" ).name("Play "+animation.data.name);
-						var aStop = newFolder.add( animation, "stop" ).name("Stop "+animation.data.name);
+						animFolder.add( animation, "timeScale" ).max(2).min(0.1);
+						var aPlay = animFolder.add( animation, "play" ).name("PLAY "+animation.data.name);
+						var aStop = animFolder.add( animation, "stop" ).name("STOP "+animation.data.name);
+
+						var start = 0;
+						var max = animation.data.length;
+						var fps = animation.data.fps;
+
+						var loop = { start: 0, end: 0, sound: null };
+						// animFolder.add( loop, "start" ).max(max).min(0);
+						// animFolder.add( loop, "end" ).max(max).min(0);
+
+						// use this as trigger
+						// when animations doesnt run in a loop
+						function play( start ) {
+							// animation.stop();
+							// animation.play( start );
+						}
+
+						var knife = new THREE.Audio( audioListener );
+						scene.add( knife );						
+						var die = new THREE.Audio( audioListener );
+						scene.add( die );					
+						var step = new THREE.Audio( audioListener );
+						scene.add( step );
+
+						var loader = new THREE.AudioLoader();
+						loader.load('assets/sounds/cstrike/knife_deploy.wav', function ( audioBuffer ) {
+								knife.setBuffer( audioBuffer );
+							});						
+						loader.load('assets/sounds/cstrike/die2.wav', function ( audioBuffer ) {
+								die.setBuffer( audioBuffer );
+							});						
+						loader.load('assets/sounds/cstrike/pl_dirt1.wav', function ( audioBuffer ) {
+								step.setBuffer( audioBuffer );
+							});
+
+						var obj = { 
+									idle:function(){ loop.start = 0; loop.end = 40/fps; loop.sound = null; play( loop.start ); },
+									walk:function(){ loop.start = 40/fps; loop.end = 90/fps; loop.sound = step; play( loop.start ); },
+									run:function(){ loop.start = 90/fps; loop.end = 120/fps; loop.sound = step; play( loop.start ); },
+									fight:function(){ loop.start = 120/fps; loop.end = 171/fps; loop.sound = knife;  play( loop.start ); },
+									die:function(){ loop.start = 171/fps; loop.end = max; loop.sound = die; play( loop.start ); },
+									reset:function(){ loop.start = 0; loop.end = max; loop.sound = null; play( loop.start ); }
+								};
+
+						animFolder.add( obj, "idle" );
+						animFolder.add( obj, "walk" );
+						animFolder.add( obj, "run" );
+						animFolder.add( obj, "fight" );
+						animFolder.add( obj, "die" );
+						animFolder.add( obj, "reset" );
+
+						// start with idle animation
+						obj.idle();
+
+						self.update = function( deltaTime ) {
+
+							skeletonHelper.update();
+
+					        if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
+					            animation.stop();
+					            if( loop.sound instanceof THREE.Audio ) {
+					            	if ( loop.sound.isPlaying ) {
+						            	loop.sound.stop();
+					            	}
+						            loop.sound.play();
+					            }
+					            animation.play(loop.start);
+					        }
+					    };
+
+						    // https://code.tutsplus.com/tutorials/webgl-with-threejs-models-and-animation--net-35993
+						    // frames: 
+			    			// 0/1 idle 
+			    			// 40 idle to walk 
+			    			// 50 walk 
+			    			// 90 walk to run 
+			    			// 100 run 
+			    			// 120 ||| 120 (basis: idle) attack 
+			    			// 141 (hold pose)  attack2 (holdpose) 
+			    			// 161 hold idle 
+			    			// 171  bis 191 mist
+							// 191 bis 211 die ani
 
 					}
 					

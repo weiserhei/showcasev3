@@ -7,17 +7,19 @@ define(["three","debugGUI"],
     'use strict';
 
     var dg = debugGUI;
-    var activeCharacter = { update: function() {} };
+    var guiFolder = dg.addFolder("Models");
+    guiFolder.open();
+
+    var activeCharacter = { update: function() {} }; // dummy function for update
 
     function CharacterController(){
-
+    	this._activeCharacter = { update: function() {} };
     }
 
     CharacterController.prototype = {
 
     	setActive: function( character ) {
-    		// console.log("set active this", this, dg );
-    		// this._activeCharacters.push( character );
+    		this._activeCharacter = character;
     		activeCharacter = character;
     	},
    //  	disable: function( character ) {
@@ -27,7 +29,7 @@ define(["three","debugGUI"],
 			// }
    //  	},
     	add: function( character ) {
-    		dg.add( character, "load" ).name("Load "+character.getName());
+    		guiFolder.add( character, "load" ).name("Load "+character.getName());
     		character.subscribeOnLoad( this.setActive );
     	},
     	/*
@@ -36,7 +38,6 @@ define(["three","debugGUI"],
     	},
     	*/
     	update: function( deltaTime ) {
-			// this._activeCharacters[ i ].update( deltaTime );
 			activeCharacter.update( deltaTime );
     	}
 

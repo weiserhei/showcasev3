@@ -128,6 +128,7 @@ define([
 				material.specular.setHex( 0x111111 );
 
 				var mesh = new THREE.Mesh( geometry, material );
+			
 				mesh.scale.multiplyScalar( 0.6 );
 
 				var box = new THREE.Box3().setFromObject( mesh )

@@ -76,7 +76,7 @@ define(function (require) {
 		controls.zoom0 = camera.zoom;
 
 		// DEBUG GUI
-        	var dg = debugGUI;
+    	var dg = debugGUI;
 		var options = {
 			reset: function() { 
 				tweenHelper.resetCamera( 600 );
@@ -132,14 +132,12 @@ define(function (require) {
 		);
 
 		characterController = new CharacterController();
-		/*
 		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
 			dae.scale.multiplyScalar( 0.01 );
 		} );
-		*/
 		// load manually or let CharacterController handle it
 		// monster.load();
-		// characterController.add( monster );
+		characterController.add( monster );
 
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );

@@ -418,7 +418,7 @@ define(function (require) {
 											loop.start = 120/fps; 
 											loop.end = 171/fps; 
 											loop.sound = knife; 
-											play( loop.start ); 
+											// play( loop.start ); 
 										},
 									die:function(){ 
 											loop.start = 171/fps; 
@@ -434,7 +434,8 @@ define(function (require) {
 										}
 								};
 
-						var name = "Wache";
+						// var name = "Wache";
+						var name = self._name;
 						if ( dg.__folders[ name ] ) {
 							var folder = dg.__folders[ name ];
 						} else {
@@ -456,25 +457,36 @@ define(function (require) {
 						obj.idle();
 
 						self.animations = obj;
-
 						// self.setupFSM( animation, obj, loop );
-						
+
+						(function() {
+
+							var oldUpdateFunction = self.update;
+
+							self.update= function( deltaTime ) {
+
+								oldUpdateFunction();
+
+								if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
+								    animation.stop();
+								    if( loop.sound instanceof THREE.Audio ) {
+								    	if ( loop.sound.isPlaying ) {
+								        	loop.sound.stop();
+								    	}
+								        loop.sound.play();
+								    }
+								    animation.play(loop.start);
+								}
+							}
+
+						})();
+						/*
 						self.update = function( deltaTime ) {
 
 							// skeletonHelper.update();
 							// console.log("updating", self.getName() );
-					        if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
-					            animation.stop();
-					            if( loop.sound instanceof THREE.Audio ) {
-					            	if ( loop.sound.isPlaying ) {
-						            	loop.sound.stop();
-					            	}
-						            loop.sound.play();
-					            }
-					            animation.play(loop.start);
-					        }
 					    };
-						
+						*/
 						    // https://code.tutsplus.com/tutorials/webgl-with-threejs-models-and-animation--net-35993
 						    // frames: 
 			    			// 0/1 idle 

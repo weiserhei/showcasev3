@@ -40,6 +40,8 @@ define(function (require) {
 		target,
 		playerNavMeshGroup;
 
+	var wache;
+
 	// DAE doesnt handle materials properly
 	function getReplacedMaterials( material ) {
 
@@ -169,14 +171,13 @@ define(function (require) {
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
-		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
+		wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
-
 
 		function callbackWache ( dae ) {
 
 			var jsonLoader = new THREE.JSONLoader();
-			
+
 		    jsonLoader.load( 'assets/maps/navmesh_demo/level.js', function( geometry, materials ) {
 		    	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
 		    	scene.add(level);
@@ -555,7 +556,9 @@ define(function (require) {
 
 			var vel = targetPosition.clone().sub(player.position);
 
-				console.log("moving player");
+			console.log("moving player");
+			wache.animations.walk();
+
 			if (vel.lengthSq() > 0.05 * 0.05) {
 				vel.normalize();
 				// Mve player to target
@@ -565,6 +568,9 @@ define(function (require) {
 				// Remove node from the path we calculated
 				calculatedPath.shift();
 			}
+		}
+		else {
+			wache.animations.idle();
 		}
 	}
 
@@ -584,7 +590,7 @@ define(function (require) {
 		if ( intersects.length > 0 ) {
 			var vec = intersects[0].point;
 			target.position.copy(vec);
-			console.log( patrol );
+
 			// Calculate a path to the target and store it
 			calculatedPath = patrol.findPath(player.position, target.position, 'level', playerNavMeshGroup);
 			console.log("calculated path", calculatedPath);

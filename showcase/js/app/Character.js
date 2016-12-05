@@ -4,7 +4,7 @@
 define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListener", "StateMachine"], 
        function (THREE, debugGUI, scene, tweenHelper, ColladaLoader, audioListener, StateMachine) {
 
-    'use strict';
+    //'use strict';
 
 	var modelGroup = new THREE.Group();
 	scene.add( modelGroup );

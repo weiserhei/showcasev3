@@ -38,7 +38,7 @@ define([
              audioListener
              ) {
 	
-	'use strict';
+	//'use strict';
 
 	var characterController; // update sekeletons, add gui button
 	var deltaTime = 0; // loop variable

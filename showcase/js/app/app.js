@@ -3,9 +3,13 @@
  * Initialize Viewer
  */
 	
+<<<<<<< HEAD
 define(function (require) {
 
 	'use strict';
+=======
+	//'use strict';
+>>>>>>> origin/master
 
 	var THREE = require("three"),
 		TWEEN = require("TWEEN"),
@@ -76,7 +80,7 @@ define(function (require) {
 		controls.zoom0 = camera.zoom;
 
 		// DEBUG GUI
-        var dg = debugGUI;
+        	var dg = debugGUI;
 		var options = {
 			reset: function() { 
 				tweenHelper.resetCamera( 600 );
@@ -114,6 +118,7 @@ define(function (require) {
 				material.specular.setHex( 0x111111 );
 
 				var mesh = new THREE.Mesh( geometry, material );
+			
 				mesh.scale.multiplyScalar( 0.6 );
 
 				var box = new THREE.Box3().setFromObject( mesh )
@@ -131,17 +136,24 @@ define(function (require) {
 		);
 
 		characterController = new CharacterController();
-
+		/*
 		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
 			dae.scale.multiplyScalar( 0.01 );
 		} );
+		*/
 		// load manually or let CharacterController handle it
 		// monster.load();
+<<<<<<< HEAD
 		characterController.add( monster );
 
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
+=======
+		// characterController.add( monster );
+		console.log("Character", Character );
+	    
+>>>>>>> origin/master
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 
@@ -305,7 +317,8 @@ define(function (require) {
 
 		}
 
-		var wache2 = new Character( "assets/models/wache2/wache2_2.dae", "Wache 2", callbackWache2 );
+		// var wache2 = new Character( "assets/models/wache2/wache2_2.dae", "Wache 2", callbackWache2 );
+		var wache2 = new Character( "assets/models/wache2/wache02shorts_idle_walking.dae", "Wache 2", callbackWache2 );
 		characterController.add( wache2 );
 
 		function callbackWache2( dae ) {
@@ -486,4 +499,9 @@ define(function (require) {
         initialize: initialize,
         animate: animate
     }
+<<<<<<< HEAD
 });
+=======
+
+});
+>>>>>>> origin/master

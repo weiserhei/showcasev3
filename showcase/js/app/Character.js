@@ -2,6 +2,7 @@
  * Setup the control method
  */
 
+<<<<<<< HEAD
 define(function (require) {
 
 	'use strict';
@@ -15,6 +16,9 @@ define(function (require) {
 		Weapon = require("Weapon"),
 	    debugGUI = require('debugGUI');
 
+=======
+    //'use strict';
+>>>>>>> origin/master
 
 	var modelGroup = new THREE.Group();
 	scene.add( modelGroup );
@@ -391,6 +395,7 @@ define(function (require) {
 
 						// use this as trigger
 						// when animations doesnt run in a loop
+<<<<<<< HEAD
 						function play( start ) {
 							self.animation.stop();
 							self.animation.play( start );
@@ -402,20 +407,34 @@ define(function (require) {
 											self.loop.end = 40/fps; 
 											self.loop.sound = null; 
 											play( self.loop.start ); 
+=======
+						//function play( start ) {
+							// animation.stop();
+							// animation.play( start );
+						//}
+
+						var obj = { 
+									idle:function(){ 
+											loop.start = 0; 
+											loop.end = 40/fps; 
+											loop.sound = null; 
+											//play( loop.start ); 
+>>>>>>> origin/master
 										},
 									walk:function(){ 
 											loop.start = 40/fps; 
 											loop.end = 90/fps; 
 											loop.sound = step; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									run:function(){ 
 											loop.start = 90/fps; 
 											loop.end = 120/fps; 
 											loop.sound = step; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									fight:function(){ 
+<<<<<<< HEAD
 											self.loop.start = 120/fps; 
 											self.loop.end = 171/fps; 
 											self.loop.sound = knife; 
@@ -427,12 +446,24 @@ define(function (require) {
 											self.loop.end = max; 
 											self.loop.sound = die; 
 											play( self.loop.start ); 
+=======
+											loop.start = 120/fps; 
+											loop.end = 171/fps; 
+											loop.sound = knife; 
+											//play( loop.start ); 
+										},
+									die:function(){ 
+											loop.start = 171/fps; 
+											loop.end = max; 
+											loop.sound = die; 
+											//play( loop.start ); 
+>>>>>>> origin/master
 										},
 									reset:function(){ 
 											loop.start = 0; 
 											loop.end = max; 
 											loop.sound = null; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										}
 								};
 

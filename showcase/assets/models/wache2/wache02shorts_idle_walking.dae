@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.77.0 commit date:2016-02-26, commit time:12:32, hash:b594b25</authoring_tool>
     </contributor>
-    <created>2016-12-05T12:57:18</created>
-    <modified>2016-12-05T12:57:18</modified>
+    <created>2016-12-05T13:53:54</created>
+    <modified>2016-12-05T13:53:54</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -17,30 +17,24 @@
     <image id="w02b_head_color_png" name="w02b_head_color_png">
       <init_from>w02b_head_color.png</init_from>
     </image>
-    <image id="w02b_head_ao" name="w02b_head_ao">
-      <init_from>w02b_head_ao.png</init_from>
-    </image>
     <image id="w02b_body_normal" name="w02b_body_normal">
       <init_from>w02b_body_normal.png</init_from>
     </image>
     <image id="w02b_body_color" name="w02b_body_color">
       <init_from>w02b_body_color.png</init_from>
     </image>
-    <image id="w02b_body_ao" name="w02b_body_ao">
-      <init_from>w02b_body_ao.png</init_from>
-    </image>
   </library_images>
   <library_effects>
     <effect id="wache2_head-effect">
       <profile_COMMON>
-        <newparam sid="w02b_head_ao-surface">
+        <newparam sid="w02b_head_color_png-surface">
           <surface type="2D">
-            <init_from>w02b_head_ao</init_from>
+            <init_from>w02b_head_color_png</init_from>
           </surface>
         </newparam>
-        <newparam sid="w02b_head_ao-sampler">
+        <newparam sid="w02b_head_color_png-sampler">
           <sampler2D>
-            <source>w02b_head_ao-surface</source>
+            <source>w02b_head_color_png-surface</source>
           </sampler2D>
         </newparam>
         <newparam sid="w02b_head_normal-surface">
@@ -54,7 +48,7 @@
           </sampler2D>
         </newparam>
         <technique sid="common">
-          <lambert>
+          <phong>
             <emission>
               <color sid="emission">0 0 0 1</color>
             </emission>
@@ -62,12 +56,12 @@
               <color sid="ambient">0 0 0 1</color>
             </ambient>
             <diffuse>
-              <texture texture="w02b_head_ao-sampler" texcoord="AO"/>
+              <texture texture="w02b_head_color_png-sampler" texcoord="FINAL"/>
             </diffuse>
             <index_of_refraction>
               <float sid="index_of_refraction">1</float>
             </index_of_refraction>
-          </lambert>
+          </phong>
           <extra>
             <technique profile="FCOLLADA">
               <bump>
@@ -86,14 +80,14 @@
     </effect>
     <effect id="wache2_body-effect">
       <profile_COMMON>
-        <newparam sid="w02b_body_ao-surface">
+        <newparam sid="w02b_body_color-surface">
           <surface type="2D">
-            <init_from>w02b_body_ao</init_from>
+            <init_from>w02b_body_color</init_from>
           </surface>
         </newparam>
-        <newparam sid="w02b_body_ao-sampler">
+        <newparam sid="w02b_body_color-sampler">
           <sampler2D>
-            <source>w02b_body_ao-surface</source>
+            <source>w02b_body_color-surface</source>
           </sampler2D>
         </newparam>
         <newparam sid="w02b_body_normal-surface">
@@ -107,7 +101,7 @@
           </sampler2D>
         </newparam>
         <technique sid="common">
-          <lambert>
+          <phong>
             <emission>
               <color sid="emission">0 0 0 1</color>
             </emission>
@@ -115,12 +109,12 @@
               <color sid="ambient">0 0 0 1</color>
             </ambient>
             <diffuse>
-              <texture texture="w02b_body_ao-sampler" texcoord="FINAL"/>
+              <texture texture="w02b_body_color-sampler" texcoord="FINAL"/>
             </diffuse>
             <index_of_refraction>
               <float sid="index_of_refraction">1</float>
             </index_of_refraction>
-          </lambert>
+          </phong>
           <extra>
             <technique profile="FCOLLADA">
               <bump>

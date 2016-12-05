@@ -2,14 +2,10 @@
  * Core application handling
  * Initialize Viewer
  */
-	
-<<<<<<< HEAD
+
 define(function (require) {
 
 	'use strict';
-=======
-	//'use strict';
->>>>>>> origin/master
 
 	var THREE = require("three"),
 		TWEEN = require("TWEEN"),
@@ -143,17 +139,11 @@ define(function (require) {
 		*/
 		// load manually or let CharacterController handle it
 		// monster.load();
-<<<<<<< HEAD
-		characterController.add( monster );
+		// characterController.add( monster );
 
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
-=======
-		// characterController.add( monster );
-		console.log("Character", Character );
-	    
->>>>>>> origin/master
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 
@@ -499,9 +489,4 @@ define(function (require) {
         initialize: initialize,
         animate: animate
     }
-<<<<<<< HEAD
 });
-=======
-
-});
->>>>>>> origin/master

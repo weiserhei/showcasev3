@@ -25,7 +25,6 @@ define(function (require) {
 
 	// var kfAnimations = [];
 	// var kfAnimationsLength;
-
 	var colladaLoader = new THREE.ColladaLoader();
 	colladaLoader.options.convertUpAxis = true;
 

@@ -1,12 +1,13 @@
 /**
  * Setup the control method
  */
-define(["three","camera","container", "renderer", "OrbitControls"], function (THREE,camera,container, renderer, OrbitControls) {
+define(["three","camera","container", "renderer"], function (THREE,camera,container, renderer) {
 
     'use strict';
     // console.log("three", THREE);
 	// CONTROLS
 
+	// var controls = new wat.OrbitControls( camera, container );
 	var controls = new THREE.OrbitControls( camera, container );
 	controls.rotateSpeed = 0.10;
 	controls.enableDamping = true;

@@ -18,6 +18,7 @@ define(function (require) {
 		tweenHelper = require("tweenHelper"),
 		skycube = require("skycube"),
 		ColladaLoader = require("ColladaLoader"),
+		OBJLoader = require("OBJLoader"),
 		Character = require("Character"),
 		CharacterController = require("CharacterController"),
 		audioListener = require("audioListener"),
@@ -33,7 +34,7 @@ define(function (require) {
 	var player,
 		raycaster = new THREE.Raycaster(),
 		intersectObject,
-		level,
+		level = [],
 		calculatedPath = null,
 		pathLines,
 		mouse = new THREE.Vector2(),
@@ -178,16 +179,25 @@ define(function (require) {
 
 			var jsonLoader = new THREE.JSONLoader();
 
-		    jsonLoader.load( 'assets/maps/navmesh_demo/level.js', function( geometry, materials ) {
-		    	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
-		    	scene.add(level);
-		    });
+		    // jsonLoader.load( 'assets/maps/navmesh_demo/level.js', function( geometry, materials ) {
+		    // jsonLoader.load( 'assets/maps/navmesh_playground/playground.json', function( geometry, materials ) {
+		    // 	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
+		    // 	scene.add(level);
+		    // });
 
-			jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', function( geometry, materials ) {
+			var objLoader = new THREE.OBJLoader();
+			var playground = "assets/maps/navmesh_playground/rendergeo_playground.obj";
+			objLoader.load( playground, function callback( group ) {
+				level.push( group.children[1] );
+				level.push( group.children[2] );
+				scene.add( group );
+			});
+
+			// jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', function( geometry, materials ) {
+			jsonLoader.load( 'assets/maps/navmesh_playground/navmesh_playground.json', function( geometry, materials ) {
 			    var zoneNodes = patrol.buildNodes(geometry);
 			    patrol.setZoneData('level', zoneNodes);
-			    console.log("patrol inside", patrol );
-			    patrol.custom = "diesdas";
+
 			    // Set the player's navigation mesh group
 			    playerNavMeshGroup = patrol.getGroup('level', player.position);
 
@@ -544,7 +554,8 @@ define(function (require) {
 
 	function tick(dTime) {
 		// patrolJS
-		if (!level) {
+		// if (!level) {
+		if (level.length == 0) {
 			return;
 		}
 
@@ -556,7 +567,7 @@ define(function (require) {
 
 			var vel = targetPosition.clone().sub(player.position);
 
-			console.log("moving player");
+			// console.log("moving player");
 			wache.animations.walk();
 
 			if (vel.lengthSq() > 0.05 * 0.05) {
@@ -573,10 +584,29 @@ define(function (require) {
 			wache.animations.idle();
 		}
 	}
-
+	
 	function onDocumentMouseClick (event) {
 		// patrolJS
 		// event.preventDefault();
+
+	    switch (event.which) {
+	        case 1:
+	            // alert('Left Mouse button pressed.');
+	            break;
+	        case 2:
+	            // alert('Middle Mouse button pressed.');
+	            break;
+	        case 3:
+	            // alert('Right Mouse button pressed.');
+	            calculatePath( event );
+	            break;
+	        default:
+	            // alert('You have a strange Mouse!');
+	    }
+
+	}
+
+	function calculatePath( event ) {
 
 		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -584,8 +614,7 @@ define(function (require) {
 		camera.updateMatrixWorld();
 
 		raycaster.setFromCamera( mouse, camera );
-
-		var intersects = raycaster.intersectObject( level );
+		var intersects = raycaster.intersectObjects( level );
 
 		if ( intersects.length > 0 ) {
 			var vec = intersects[0].point;
@@ -593,7 +622,7 @@ define(function (require) {
 
 			// Calculate a path to the target and store it
 			calculatedPath = patrol.findPath(player.position, target.position, 'level', playerNavMeshGroup);
-			console.log("calculated path", calculatedPath);
+			// console.log("calculated path", calculatedPath);
 
 			if (calculatedPath && calculatedPath.length) {
 

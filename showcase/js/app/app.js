@@ -145,10 +145,11 @@ define([
 		);
 
 		characterController = new CharacterController();
-
+		/*
 		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
 			dae.scale.multiplyScalar( 0.01 );
 		} );
+		*/
 		// load manually or let CharacterController handle it
 		// monster.load();
 		characterController.add( monster );

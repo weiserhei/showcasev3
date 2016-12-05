@@ -327,47 +327,47 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 
 						// use this as trigger
 						// when animations doesnt run in a loop
-						function play( start ) {
+						//function play( start ) {
 							// animation.stop();
 							// animation.play( start );
-						}
+						//}
 
 						var obj = { 
 									idle:function(){ 
 											loop.start = 0; 
 											loop.end = 40/fps; 
 											loop.sound = null; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									walk:function(){ 
 											loop.start = 40/fps; 
 											loop.end = 90/fps; 
 											loop.sound = step; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									run:function(){ 
 											loop.start = 90/fps; 
 											loop.end = 120/fps; 
 											loop.sound = step; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									fight:function(){ 
 											loop.start = 120/fps; 
 											loop.end = 171/fps; 
 											loop.sound = knife; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									die:function(){ 
 											loop.start = 171/fps; 
 											loop.end = max; 
 											loop.sound = die; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										},
 									reset:function(){ 
 											loop.start = 0; 
 											loop.end = max; 
 											loop.sound = null; 
-											play( loop.start ); 
+											//play( loop.start ); 
 										}
 								};
 

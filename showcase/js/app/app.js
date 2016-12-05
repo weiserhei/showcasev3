@@ -152,7 +152,7 @@ define([
 		*/
 		// load manually or let CharacterController handle it
 		// monster.load();
-		characterController.add( monster );
+		// characterController.add( monster );
 
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );

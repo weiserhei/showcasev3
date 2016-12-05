@@ -304,7 +304,8 @@ define([
 
 		}
 
-		var wache2 = new Character( "assets/models/wache2/wache2_2.dae", "Wache 2", callbackWache2 );
+		// var wache2 = new Character( "assets/models/wache2/wache2_2.dae", "Wache 2", callbackWache2 );
+		var wache2 = new Character( "assets/models/wache2/wache02shorts_idle_walking.dae", "Wache 2", callbackWache2 );
 		characterController.add( wache2 );
 
 		function callbackWache2( dae ) {

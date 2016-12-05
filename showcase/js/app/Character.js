@@ -1,17 +1,27 @@
 /**
  * Setup the control method
  */
-define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListener", "StateMachine"], 
-       function (THREE, debugGUI, scene, tweenHelper, ColladaLoader, audioListener, StateMachine) {
 
-    'use strict';
+define(function (require) {
+
+	'use strict';
+	
+	var THREE = require("three"),
+		scene = require("scene"),
+		tweenHelper = require("tweenHelper"),
+		ColladaLoader = require("ColladaLoader"),
+		audioListener = require("audioListener"),
+		StateMachine = require("StateMachine"),
+		Weapon = require("Weapon"),
+	    debugGUI = require('debugGUI');
+
 
 	var modelGroup = new THREE.Group();
 	scene.add( modelGroup );
 
 	var dg = debugGUI;
 	var folder = [];
-	var skeletonHelper;
+	var skeletonHelper = { update: function(){} };
 	var activeCharacter;
 
 	// var kfAnimations = [];
@@ -46,9 +56,23 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
     	// this._mesh = null; //?
     	this.handlers = [];  // callbacks
 
+    	this.animations;
+    	this.animation;
+
+    	this.healthPoints = 100;
+    	this.weapon = new Weapon( "Hellebarde", 10 );
+
     }
 
     Character.prototype = {
+
+    	pvp: function( name, callback ) {
+
+    		var wache = new Character( "assets/models/wache/wache_body_only2.dae", name, callback );
+    		wache.load();
+    		return wache;
+
+    	},
 
 		subscribeOnLoad: function(fn) {
 		    this.handlers.push(fn);
@@ -69,11 +93,42 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 		    });
 		},
 
+		attack: function( target ) {
+			target.takeDamage( this.weapon.attackDamage );
+			this.animations.fight();
+		},
+		takeDamage: function( howMuch ) {
+			this.healthPoints -= howMuch;
+			if( this.healthPoints <= 0 ) {
+				this.healthPoints = 0;
+				this.die();
+			}
+		},
+		die: function() {
+			// disable
+			this.animations.die();
+		},
     	getName: function() {
     		return this._name;
     	},
     	update: function( deltaTime ) {
 			skeletonHelper.update();
+
+            // console.log( this.animation.currentTime );
+	        // if ( this.animation.currentTime > this.loop.end || this.animation.currentTime < this.loop.start ) {
+	        // 	this.animation.stop();
+	        // }
+	        // if ( this.animation.currentTime > this.loop.end || this.animation.currentTime < this.loop.start ) {
+	        //     this.animation.stop();
+	        //     if( this.loop.sound instanceof THREE.Audio ) {
+	        //     	if ( this.loop.sound.isPlaying ) {
+		       //      	this.loop.sound.stop();
+	        //     	}
+		       //      this.loop.sound.play();
+	        //     }
+	        //     this.animation.play(this.loop.start);
+	        // }
+
     	},
     	setupFSM: function( animation, animationFunctions, loop ) {
 
@@ -290,9 +345,17 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 						animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 
 						var animation = new THREE.Animation( child, child.geometry.animation );
+						self.animation = animation;
 						// animation.timeScale = 1/2 ; // add this
-						animation.play();
+						// animation.play();
 						console.log( "anim", animation );
+
+						// var track = new THREE.NumberKeyframeTrack( trackName, times, values );
+						var track = new THREE.NumberKeyframeTrack( "crazy", [0,1], [0, 40] );
+
+						// var clip = new THREE.AnimationClip( name, duration, tracks );
+						// var clip = THREE.AnimationClip.parseAnimation( animation, skl.tag );
+						var clip = new THREE.AnimationClip( "crazy2", 2, track );
 
 						animFolder.add( animation, "timeScale" ).max(2).min(0.1);
 						var aPlay = animFolder.add( animation, "play" ).name("PLAY "+animation.data.name);
@@ -303,6 +366,7 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 						var fps = animation.data.fps;
 
 						var loop = { start: 0, end: 0, sound: null };
+						self.loop = loop;
 						// animFolder.add( loop, "start" ).max(max).min(0);
 						// animFolder.add( loop, "end" ).max(max).min(0);
 
@@ -328,16 +392,16 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 						// use this as trigger
 						// when animations doesnt run in a loop
 						function play( start ) {
-							// animation.stop();
-							// animation.play( start );
+							self.animation.stop();
+							self.animation.play( start );
 						}
 
 						var obj = { 
 									idle:function(){ 
-											loop.start = 0; 
-											loop.end = 40/fps; 
-											loop.sound = null; 
-											play( loop.start ); 
+											self.loop.start = 0; 
+											self.loop.end = 40/fps; 
+											self.loop.sound = null; 
+											play( self.loop.start ); 
 										},
 									walk:function(){ 
 											loop.start = 40/fps; 
@@ -352,16 +416,17 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 											play( loop.start ); 
 										},
 									fight:function(){ 
-											loop.start = 120/fps; 
-											loop.end = 171/fps; 
-											loop.sound = knife; 
-											play( loop.start ); 
+											self.loop.start = 120/fps; 
+											self.loop.end = 171/fps; 
+											self.loop.sound = knife; 
+											play( self.loop.start ); 
+											console.log("fight", self.loop);
 										},
 									die:function(){ 
-											loop.start = 171/fps; 
-											loop.end = max; 
-											loop.sound = die; 
-											play( loop.start ); 
+											self.loop.start = 171/fps; 
+											self.loop.end = max; 
+											self.loop.sound = die; 
+											play( self.loop.start ); 
 										},
 									reset:function(){ 
 											loop.start = 0; 
@@ -392,12 +457,14 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 						// start with idle animation
 						obj.idle();
 
-						// self.setupFSM( animation, obj, loop );
+						self.animations = obj;
 
+						// self.setupFSM( animation, obj, loop );
+						
 						self.update = function( deltaTime ) {
 
 							// skeletonHelper.update();
-
+							// console.log("updating", self.getName() );
 					        if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
 					            animation.stop();
 					            if( loop.sound instanceof THREE.Audio ) {
@@ -409,7 +476,7 @@ define(["three","debugGUI","scene", "tweenHelper", "ColladaLoader", "audioListen
 					            animation.play(loop.start);
 					        }
 					    };
-
+						
 						    // https://code.tutsplus.com/tutorials/webgl-with-threejs-models-and-animation--net-35993
 						    // frames: 
 			    			// 0/1 idle 

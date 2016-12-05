@@ -2,43 +2,29 @@
  * Core application handling
  * Initialize Viewer
  */
-define([
-    "three",
-    "TWEEN",
-    "scene",
-    "camera",
-    "renderer",
-    "controls",
-    "stats",
-    "clock",
-    "debugGUI",
-    "tweenHelper",
-    "skycube",
-    "ColladaLoader",
-    "Character",
-    "CharacterController",
-    "loadingManager",
-    "audioListener"
-], function ( 
-             THREE, 
-             TWEEN, 
-             scene, 
-             camera, 
-             renderer, 
-             controls, 
-             stats, 
-             clock,
-             debugGUI, 
-             tweenHelper,
-             skycube,
-             ColladaLoader,
-             Character,
-             CharacterController,
-             loadingManager,
-             audioListener
-             ) {
 	
+define(function (require) {
+
 	'use strict';
+
+	var THREE = require("three"),
+		TWEEN = require("TWEEN"),
+		scene = require("scene"),
+		camera = require("camera"),
+		renderer = require("renderer"),
+		controls = require("controls"),
+		stats = require("stats"),
+		clock = require("clock"),
+		tweenHelper = require("tweenHelper"),
+		skycube = require("skycube"),
+		ColladaLoader = require("ColladaLoader"),
+		Character = require("Character"),
+		CharacterController = require("CharacterController"),
+		audioListener = require("audioListener"),
+		StateMachine = require("StateMachine"),
+		loadingManager = require("loadingManager"),
+	    debugGUI = require('debugGUI');
+
 
 	var characterController; // update sekeletons, add gui button
 	var deltaTime = 0; // loop variable
@@ -53,7 +39,7 @@ define([
 
 			var replacedMaterial = new THREE.MultiMaterial();
 
-			for( var i = 0; i < material.materials.length; i ++ ) {
+			for( let i = 0; i < material.materials.length; i ++ ) {
 
 				// var newMaterial = new THREE.MeshPhongMaterial();
 				var newMaterial = new THREE.MeshStandardMaterial( parameters );
@@ -153,10 +139,25 @@ define([
 		// monster.load();
 		characterController.add( monster );
 
+		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
+		// characterController.add( fryman );
+
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 
+
 		function callbackWache ( dae ) {
+
+			// var wache3 = wache.pvp( "wache3", cbw2 );
+
+			// function cbw2( model ) {
+			// 	model.position.set( 1, 0, 0 );
+			// 	model.rotation.set( 0, - Math.PI / 2, 0 );
+			// 	wache3.attack( wache );
+			// 	setTimeout(function(){ wache3.die(); console.log(wache3); console.log(wache); }, 3000);
+	  //   		console.log( wache3.loop );
+			// }
+
 			// wache
 			// dae.children[1].children[0].material.color.setHex( 0x00FF00 );
 			// console.log( dae );
@@ -485,5 +486,4 @@ define([
         initialize: initialize,
         animate: animate
     }
-
 });

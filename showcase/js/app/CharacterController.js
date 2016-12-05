@@ -1,8 +1,14 @@
 /**
  * Setup the control method
- */
 define(["three","debugGUI"], 
        function (THREE, debugGUI) {
+ */
+
+define(function(require) {
+
+        var	debugGUI = require('debugGUI');
+		
+		// return function () {};
 
     'use strict';
 

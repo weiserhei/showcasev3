@@ -90,7 +90,7 @@ define([
 		controls.zoom0 = camera.zoom;
 
 		// DEBUG GUI
-        var dg = debugGUI;
+        	var dg = debugGUI;
 		var options = {
 			reset: function() { 
 				tweenHelper.resetCamera( 600 );
@@ -154,7 +154,8 @@ define([
 		// load manually or let CharacterController handle it
 		// monster.load();
 		// characterController.add( monster );
-
+		console.log("Character", Character );
+	    
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 

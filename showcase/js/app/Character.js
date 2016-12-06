@@ -51,7 +51,7 @@ define(function (require) {
     	this._url = url;
     	this._name = name;
     	this._onLoad = onLoad;
-    	// this._mesh = null; //?
+    	this._mesh = null; //?
     	this.handlers = [];  // callbacks
 
     	this.animations;
@@ -63,6 +63,12 @@ define(function (require) {
     }
 
     Character.prototype = {
+
+    	getPawn: function() {
+
+    		return this._mesh;
+
+    	},
 
     	pvp: function( name, callback ) {
 
@@ -256,7 +262,7 @@ define(function (require) {
 			colladaLoader.load( this._url, function ( collada ) {
 
 				var dae = collada.scene;
-
+				self._mesh = dae;
 				// prep animations
 				/*
 				var animations = collada.animations;

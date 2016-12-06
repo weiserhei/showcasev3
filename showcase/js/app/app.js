@@ -27,21 +27,8 @@ define(function (require) {
 	    debugGUI = require('debugGUI');
 	    // patrol = require('../libs/patrol2');
 
-	var characterController; // update sekeletons, add gui button
+	var characterController = new CharacterController();; // update sekeletons, add gui button
 	var deltaTime = 0; // loop variable
-
-	// patrol JS
-	var player,
-		raycaster = new THREE.Raycaster(),
-		intersectObject,
-		level = [],
-		calculatedPath = null,
-		pathLines,
-		mouse = new THREE.Vector2(),
-		target,
-		playerNavMeshGroup;
-
-	var wache;
 
 	// DAE doesnt handle materials properly
 	function getReplacedMaterials( material ) {
@@ -106,25 +93,10 @@ define(function (require) {
 
 		dg.add( gridXZ, "visible" ).name("Show Grid");
 
-		// Add test sphere
-		// var geometry = new THREE.SphereGeometry( 0.25, 32, 32 );
-		// var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-		// player = new THREE.Mesh( geometry, material );
-		// scene.add( player );
-		// player.position.set(-3.5, 0.5, 5.5);
-
-		var geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-		var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-		target = new THREE.Mesh( geometry, material );
-		scene.add( target );
-		// target.position.copy(player.position);
-
 		// LOAD JSON OBJECTS
 		var jsonLoader = new THREE.JSONLoader( loadingManager );
 		// jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', myScope.bind( this ) );
 
-
-		/*
 		jsonLoader.load("assets/models/podest/podest.js", 
 			function callback(geometry, materials) {
 
@@ -160,8 +132,7 @@ define(function (require) {
 							
 			}
 		);
-		*/
-		characterController = new CharacterController();
+		
 		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
 			dae.scale.multiplyScalar( 0.01 );
 		} );
@@ -172,8 +143,11 @@ define(function (require) {
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
-		wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
+		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache" );
 		characterController.add( wache );
+
+		var wache3 = new Character( "assets/models/wache/wache_body_only2.dae", "Wache Nav", callbackWache );
+		characterController.add( wache3 );
 
 		function callbackWache ( dae ) {
 
@@ -185,6 +159,20 @@ define(function (require) {
 		    // 	scene.add(level);
 		    // });
 
+			
+			// patrolJS
+			var level = [];
+			// dirty man
+			characterController.setLevel( level );
+
+			var geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+			var target = new THREE.Mesh( geometry, material );
+			scene.add( target );
+
+			characterController.setTarget( target );
+			// target.position.copy(player.position);
+
 			var objLoader = new THREE.OBJLoader();
 			var playground = "assets/maps/navmesh_playground/rendergeo_playground.obj";
 			objLoader.load( playground, function callback( group ) {
@@ -193,13 +181,15 @@ define(function (require) {
 				scene.add( group );
 			});
 
+			dae.position.set(-3.5, 0.5, 5.5);
 			// jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', function( geometry, materials ) {
 			jsonLoader.load( 'assets/maps/navmesh_playground/navmesh_playground.json', function( geometry, materials ) {
 			    var zoneNodes = patrol.buildNodes(geometry);
 			    patrol.setZoneData('level', zoneNodes);
 
-			    // Set the player's navigation mesh group
-			    playerNavMeshGroup = patrol.getGroup('level', player.position);
+			    // // Set the player's navigation mesh group
+			    var playerNavMeshGroup = patrol.getGroup('level', dae.position);
+			    characterController.setNavMeshGroup( playerNavMeshGroup );
 
 		    	var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
 		    		color: 0xd79fd4,
@@ -230,9 +220,6 @@ define(function (require) {
 			// var hand_R = dae.getObjectByName("hand_R");
 			var hand_L = dae.getObjectByName("hand_L");
 			console.log("hand",hand_L);
-
-			player = dae;
-			player.position.set(-3.5, 0.5, 5.5);
 
 			var item_L = dae.getObjectByName("item_L");
 			console.log(item_L);
@@ -528,7 +515,6 @@ define(function (require) {
 	};
 
 	loadingManager.onLoad = function() {
-		document.addEventListener( 'click', onDocumentMouseClick, false );
 		animate();
 	};
 
@@ -536,8 +522,6 @@ define(function (require) {
     var animate = function () {
 
     	deltaTime = clock.getDelta();
-
-    	tick( deltaTime );
 
 		TWEEN.update();
 		controls.update();
@@ -551,115 +535,6 @@ define(function (require) {
 		requestAnimationFrame( animate );
 
     };
-
-	function tick(dTime) {
-		// patrolJS
-		// if (!level) {
-		if (level.length == 0) {
-			return;
-		}
-
-		var speed = 5;
-		var targetPosition;
-
-		if (calculatedPath && calculatedPath.length) {
-			targetPosition = calculatedPath[0];
-
-			var vel = targetPosition.clone().sub(player.position);
-
-			// console.log("moving player");
-			wache.animations.walk();
-
-			if (vel.lengthSq() > 0.05 * 0.05) {
-				vel.normalize();
-				// Mve player to target
-				player.position.add(vel.multiplyScalar(dTime * speed));
-			}
-			else {
-				// Remove node from the path we calculated
-				calculatedPath.shift();
-			}
-		}
-		else {
-			wache.animations.idle();
-		}
-	}
-	
-	function onDocumentMouseClick (event) {
-		// patrolJS
-		// event.preventDefault();
-
-	    switch (event.which) {
-	        case 1:
-	            // alert('Left Mouse button pressed.');
-	            break;
-	        case 2:
-	            // alert('Middle Mouse button pressed.');
-	            break;
-	        case 3:
-	            // alert('Right Mouse button pressed.');
-	            calculatePath( event );
-	            break;
-	        default:
-	            // alert('You have a strange Mouse!');
-	    }
-
-	}
-
-	function calculatePath( event ) {
-
-		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-		camera.updateMatrixWorld();
-
-		raycaster.setFromCamera( mouse, camera );
-		var intersects = raycaster.intersectObjects( level );
-
-		if ( intersects.length > 0 ) {
-			var vec = intersects[0].point;
-			target.position.copy(vec);
-
-			// Calculate a path to the target and store it
-			calculatedPath = patrol.findPath(player.position, target.position, 'level', playerNavMeshGroup);
-			// console.log("calculated path", calculatedPath);
-
-			if (calculatedPath && calculatedPath.length) {
-
-				if (pathLines) {
-					scene.remove(pathLines);
-				}
-
-				var material = new THREE.LineBasicMaterial({
-					color: 0x0000ff,
-					linewidth: 2
-				});
-
-				var geometry = new THREE.Geometry();
-				geometry.vertices.push(player.position);
-
-				// Draw debug lines
-				for (var i = 0; i < calculatedPath.length; i++) {
-					geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, 0.2, 0)));
-				}
-
-				pathLines = new THREE.Line( geometry, material );
-				scene.add( pathLines );
-
-				// Draw debug cubes except the last one. Also, add the player position.
-				var debugPath = [player.position].concat(calculatedPath);
-
-				for (var i = 0; i < debugPath.length - 1; i++) {
-					geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-					var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
-					var node = new THREE.Mesh( geometry, material );
-					node.position.copy(debugPath[i]);
-					pathLines.add( node );
-				}
-			}
-		}
-	}
-
 
     return {
         initialize: initialize,

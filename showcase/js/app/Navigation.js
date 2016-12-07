@@ -6,13 +6,12 @@ define(function (require) {
     var	dg = require('debugGUI');
 
     // patrol JS
-    var player,
-        raycaster = new THREE.Raycaster(),
+    var raycaster = new THREE.Raycaster(),
+        mouse = new THREE.Vector2(),
         intersectObject,
         level = [],
         calculatedPath = null,
         pathLines,
-        mouse = new THREE.Vector2(),
         target,
         playerNavMeshGroup,
         character;
@@ -70,11 +69,10 @@ define(function (require) {
         // },
         setCharacter: function( characte ) {
         	character = characte;
-
 			// character.getPawn().position.set(-3.5, 0.5, 5.5);
 		    // // Set the player's navigation mesh group
 		    // playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position);
-		    playerNavMeshGroup = patrol.getGroup('level', new THREE.Vector3( 0, 0, 0 ) );
+		    playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
         },
 
     	update: function( deltaTime ) {

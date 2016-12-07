@@ -27,7 +27,7 @@ define(function (require) {
 	    debugGUI = require('debugGUI');
 	    // patrol = require('../libs/patrol2');
 
-	var characterController = new CharacterController();; // update sekeletons, add gui button
+	var characterController = new CharacterController(); // update sekeletons, add gui button
 	var deltaTime = 0; // loop variable
 
 	// DAE doesnt handle materials properly
@@ -146,9 +146,6 @@ define(function (require) {
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache" );
 		characterController.add( wache );
 
-		var wache3 = new Character( "assets/models/wache/wache_body_only2.dae", "Wache Nav", callbackWache );
-		characterController.add( wache3 );
-
 		function callbackWache ( dae ) {
 
 			var jsonLoader = new THREE.JSONLoader();
@@ -158,48 +155,6 @@ define(function (require) {
 		    // 	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
 		    // 	scene.add(level);
 		    // });
-
-			
-			// patrolJS
-			var level = [];
-			// dirty man
-			characterController.setLevel( level );
-
-			var geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-			var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-			var target = new THREE.Mesh( geometry, material );
-			scene.add( target );
-
-			characterController.setTarget( target );
-			// target.position.copy(player.position);
-
-			var objLoader = new THREE.OBJLoader();
-			var playground = "assets/maps/navmesh_playground/rendergeo_playground.obj";
-			objLoader.load( playground, function callback( group ) {
-				level.push( group.children[1] );
-				level.push( group.children[2] );
-				scene.add( group );
-			});
-
-			dae.position.set(-3.5, 0.5, 5.5);
-			// jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', function( geometry, materials ) {
-			jsonLoader.load( 'assets/maps/navmesh_playground/navmesh_playground.json', function( geometry, materials ) {
-			    var zoneNodes = patrol.buildNodes(geometry);
-			    patrol.setZoneData('level', zoneNodes);
-
-			    // // Set the player's navigation mesh group
-			    var playerNavMeshGroup = patrol.getGroup('level', dae.position);
-			    characterController.setNavMeshGroup( playerNavMeshGroup );
-
-		    	var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-		    		color: 0xd79fd4,
-		    		opacity: 0.5,
-		    		transparent: true
-		    	}));
-
-		    	scene.add(mesh);
-
-			});
 
 			// var wache3 = wache.pvp( "wache3", cbw2 );
 

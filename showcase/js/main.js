@@ -39,8 +39,9 @@ require.config({
 require([
     // Load our app module and pass it to our definition function
     'app',
-	'detector'
-], function (App,Detector) {
+	'detector',
+    'loadingManager'
+], function (App,Detector,loadingManager) {
 
 	if ( ! Detector.webgl ) {
 	
@@ -52,7 +53,12 @@ require([
 	} else {
 		
 		// The "app" dependency is passed in as "App"
-		App.initialize();
+		// App.initialize();
+
+        loadingManager.onLoad = function() {
+            App.initialize();
+            App.animate();
+        };
         
         // animate is called from the loading manager
 		// App.animate();

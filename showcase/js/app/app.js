@@ -24,7 +24,8 @@ define(function (require) {
 		audioListener = require("audioListener"),
 		StateMachine = require("StateMachine"),
 		loadingManager = require("loadingManager"),
-	    debugGUI = require('debugGUI');
+	    debugGUI = require('debugGUI'),
+	    Enemy = require('Enemy');
 	    // patrol = require('../libs/patrol2');
 
 	var characterController = new CharacterController(); // update sekeletons, add gui button
@@ -94,7 +95,7 @@ define(function (require) {
 		dg.add( gridXZ, "visible" ).name("Show Grid");
 
 		// LOAD JSON OBJECTS
-		var jsonLoader = new THREE.JSONLoader( loadingManager );
+		var jsonLoader = new THREE.JSONLoader();
 		// jsonLoader.load( 'assets/maps/navmesh_demo/level.nav.js', myScope.bind( this ) );
 
 		jsonLoader.load("assets/models/podest/podest.js", 
@@ -103,7 +104,7 @@ define(function (require) {
 				var material = new THREE.MeshPhongMaterial();
 
 				var path = "assets/models/podest/";
-				var tLoader = new THREE.TextureLoader( loadingManager );
+				var tLoader = new THREE.TextureLoader();
 				var T_diffuse = tLoader.load( path+"wood_mac.jpg" );
 				var T_normal = tLoader.load( path+"wood_normal.jpg");
 				var T_specular = tLoader.load( path+"11357.jpg" );
@@ -139,7 +140,6 @@ define(function (require) {
 		// load manually or let CharacterController handle it
 		// monster.load();
 		characterController.add( monster );
-
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
@@ -467,10 +467,6 @@ define(function (require) {
 		scene.add(spotCyan2);
 		*/
 
-	};
-
-	loadingManager.onLoad = function() {
-		animate();
 	};
 
 	// MAIN LOOP

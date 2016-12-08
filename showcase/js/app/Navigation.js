@@ -3,7 +3,8 @@ define(function (require) {
     var	THREE = require('three');
     var	camera = require('camera');
     var	scene = require('scene');
-    var	dg = require('debugGUI');
+    var dg = require('debugGUI');
+    var	Enemy = require('Enemy');
 
     // patrol JS
     var raycaster = new THREE.Raycaster(),
@@ -16,6 +17,7 @@ define(function (require) {
         playerNavMeshGroup,
         character;
 
+    var enemy;
 
     function Navigation() {
 
@@ -73,6 +75,9 @@ define(function (require) {
 		    // // Set the player's navigation mesh group
 		    // playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position);
 		    playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
+
+            enemy = new Enemy( character.getPawn(), level);
+            enemy.attack( character.getPawn(), playerNavMeshGroup );
         },
 
     	update: function( deltaTime ) {
@@ -82,6 +87,9 @@ define(function (require) {
             if (level.length == 0 || typeof character == 'undefined' ) {
                 return;
             }
+
+            enemy.update( deltaTime );
+
             // level, calculatedPath, player
             var targetPosition;
 
@@ -146,6 +154,7 @@ define(function (require) {
             targetPosition.copy(vec);
 
             // Calculate a path to the target and store it
+            console.log("nav inputs", fromPosition, targetPosition, playerNavMeshGroup );
             calculatedPath = patrol.findPath(fromPosition, targetPosition, 'level', playerNavMeshGroup);
             // console.log("calculated path", calculatedPath);
 

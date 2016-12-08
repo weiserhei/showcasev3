@@ -17,7 +17,6 @@ define(function (require) {
 	colladaLoader.options.convertUpAxis = true;
 
 	var model = null;
-	var test;
 
 	colladaLoader.load( "assets/models/monster/monster.dae", function callback( collada ) {
 		model = collada.scene;
@@ -26,15 +25,16 @@ define(function (require) {
 
 	var level;
 	var playerNavMeshGroup = 0;
+	var pathLines;
 
 	function Enemy( chara, lev ) {
 
 		this.mesh = model.clone();
 		this.mesh.position.set( 1, 0, 1 );
-		test = this.mesh;
 		scene.add( this.mesh );
 
-		console.log( chara );
+		this._speed = 3;
+
 		this.target = chara;
 
 		level = lev;
@@ -78,39 +78,39 @@ define(function (require) {
 	            calculatedPath = patrol.findPath( fromPosition, targetPosition, 'level', playerNavMeshGroup);
 	            // console.log("calculated path", calculatedPath);
 
-	        //     if (calculatedPath && calculatedPath.length) {
+	            if (calculatedPath && calculatedPath.length) {
 
-	        //         if (pathLines) {
-	        //             scene.remove(pathLines);
-	        //         }
+	                if (pathLines) {
+	                    scene.remove(pathLines);
+	                }
 
-	        //         var material = new THREE.LineBasicMaterial({
-	        //             color: 0x0000ff,
-	        //             linewidth: 2
-	        //         });
+	                var material = new THREE.LineBasicMaterial({
+	                    color: 0x00FF00,
+	                    linewidth: 2
+	                });
 
-	        //         var geometry = new THREE.Geometry();
-	        //         geometry.vertices.push(fromPosition);
+	                var geometry = new THREE.Geometry();
+	                geometry.vertices.push(fromPosition);
 
-	        //         // Draw debug lines
-	        //         for (var i = 0; i < calculatedPath.length; i++) {
-	        //             geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, 0.2, 0)));
-	        //         }
+	                // Draw debug lines
+	                for (var i = 0; i < calculatedPath.length; i++) {
+	                    geometry.vertices.push(calculatedPath[i].clone().add(new THREE.Vector3(0, 0.2, 0)));
+	                }
 
-	        //         pathLines = new THREE.Line( geometry, material );
-	        //         scene.add( pathLines );
+	                pathLines = new THREE.Line( geometry, material );
+	                scene.add( pathLines );
 
-	        //         Draw debug cubes except the last one. Also, add the player position.
-	        //         var debugPath = [fromPosition].concat(calculatedPath);
+	                // Draw debug cubes except the last one. Also, add the player position.
+	                var debugPath = [fromPosition].concat(calculatedPath);
 
-	        //         for (var i = 0; i < debugPath.length - 1; i++) {
-	        //             geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
-	        //             var material = new THREE.MeshBasicMaterial( {color: 0x00ffff} );
-	        //             var node = new THREE.Mesh( geometry, material );
-	        //             node.position.copy(debugPath[i]);
-	        //             pathLines.add( node );
-	        //         }
-	        //     }
+	                for (var i = 0; i < debugPath.length - 1; i++) {
+	                    geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+	                    var material = new THREE.MeshBasicMaterial( {color: 0x00F0F0} );
+	                    var node = new THREE.Mesh( geometry, material );
+	                    node.position.copy(debugPath[i]);
+	                    pathLines.add( node );
+	                }
+	            }
 	        // }
 	    },
 
@@ -142,7 +142,7 @@ define(function (require) {
                 if (vel.lengthSq() > 0.05 * 0.05) {
                     vel.normalize();
                     // Mve player to target
-                    this.mesh.position.add(vel.multiplyScalar(deltaTime * 5));
+                    this.mesh.position.add(vel.multiplyScalar(deltaTime * this._speed));
                 }
                 else {
                     // Remove node from the path we calculated

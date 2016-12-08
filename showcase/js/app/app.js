@@ -143,12 +143,12 @@ define(function (require) {
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
-		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache" );
+		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 
 		function callbackWache ( dae ) {
 
-			var jsonLoader = new THREE.JSONLoader();
+			// var jsonLoader = new THREE.JSONLoader();
 
 		    // jsonLoader.load( 'assets/maps/navmesh_demo/level.js', function( geometry, materials ) {
 		    // jsonLoader.load( 'assets/maps/navmesh_playground/playground.json', function( geometry, materials ) {
@@ -177,7 +177,7 @@ define(function (require) {
 			console.log("hand",hand_L);
 
 			var item_L = dae.getObjectByName("item_L");
-			console.log(item_L);
+			console.log( "item bone", item_L);
 			// dg.add( item_L.position, "x" );
 			// hand_L.add( item_L );
 			// item_L.updateMatrix();

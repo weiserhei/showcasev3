@@ -1,5 +1,7 @@
 define(function (require) {
 
+    'use strict';
+
     var	THREE = require('three');
     var	camera = require('camera');
     var	scene = require('scene');
@@ -23,6 +25,7 @@ define(function (require) {
 
     	document.addEventListener( 'click', onDocumentMouseClick, false );
     	this._speed = 5;
+        this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 
 		var obj = { add: function(){ 
 
@@ -76,11 +79,14 @@ define(function (require) {
 		    // playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position);
 		    playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
 
-            enemy = new Enemy( character.getPawn(), level);
-            enemy.attack( character.getPawn(), playerNavMeshGroup );
+            enemy = new Enemy();
+            enemy.setTarget( character.getPawn() );
+
         },
 
     	update: function( deltaTime ) {
+
+            // MOVE this shit to character?
 
             // patrolJS
             // if (!level) {
@@ -103,7 +109,20 @@ define(function (require) {
 
                 if (vel.lengthSq() > 0.05 * 0.05) {
                     vel.normalize();
-                    // Mve player to target
+
+                    var lookVector = vel.clone();
+                    lookVector.y = 0;
+                    // console.log( lookVector );
+
+                    // character.getPawn().quaternion.setFromUnitVectors( this._rotationAxis, lookVector);
+
+                    // SLERP for smooth rotation
+                    var slerp = new THREE.Quaternion().setFromUnitVectors( this._rotationAxis, lookVector);
+                    character.getPawn().quaternion.slerp( slerp, deltaTime*10 );
+
+                    // console.log( character.getPawn().rotation );
+
+                    // Move player to target
                     character.getPawn().position.add(vel.multiplyScalar(deltaTime * this._speed));
                 }
                 else {
@@ -121,6 +140,7 @@ define(function (require) {
 
     function onDocumentMouseClick (event) {
         // event.preventDefault();
+        // console.log( event.which );
 
         switch (event.which) {
             case 1:
@@ -154,7 +174,7 @@ define(function (require) {
             targetPosition.copy(vec);
 
             // Calculate a path to the target and store it
-            console.log("nav inputs", fromPosition, targetPosition, playerNavMeshGroup );
+            // console.log("nav inputs", fromPosition, targetPosition, playerNavMeshGroup );
             calculatedPath = patrol.findPath(fromPosition, targetPosition, 'level', playerNavMeshGroup);
             // console.log("calculated path", calculatedPath);
 

@@ -1,6 +1,9 @@
 /**
  * Enemy
- * 
+ * + setTarget( THREE.Mesh )
+ * + calculatePath( fromPos, toPos )
+ * + update( deltaTime )
+ *
  */
 
 define(function (require) {
@@ -9,49 +12,46 @@ define(function (require) {
 
 	var THREE = require("three");
 	var scene = require("scene");
-	var camera = require("camera");
-
 	var loadingManager = require("loadingManager");
-
-	var colladaLoader = new THREE.ColladaLoader( loadingManager );
-	colladaLoader.options.convertUpAxis = true;
 
 	var model = null;
 
+	var colladaLoader = new THREE.ColladaLoader( loadingManager );
+	colladaLoader.options.convertUpAxis = true;
 	colladaLoader.load( "assets/models/monster/monster.dae", function callback( collada ) {
 		model = collada.scene;
-		model.scale.multiplyScalar( 0.01 );
+		// model.matrix.makeRotationY( -Math.PI / 2 );
+
+		// var rotateX = Math.PI / 2;
+		// var matrix = new THREE.Matrix4().makeRotationY( rotateX );
+		var matrix = new THREE.Matrix4().multiplyScalar( 0.001 );
+		model.applyMatrix( matrix );
+		// model.scale.multiplyScalar( 0.01 );
+
 	} );
 
-	var level;
 	var playerNavMeshGroup = 0;
 	var pathLines;
+	var calculatedPath = null;
 
-	function Enemy( chara, lev ) {
+	function Enemy() {
 
 		this.mesh = model.clone();
-		this.mesh.position.set( 1, 0, 1 );
 		scene.add( this.mesh );
 
-		this._speed = 3;
+		this._speed = 4;
+		this._target = null;
 
-		this.target = chara;
-
-		level = lev;
-
-		// xxxx
-		this._playerNavMeshGroup = patrol.getGroup('level', this.mesh.position );
+		this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 
 	}
 
-	var calculatedPath;
-
 	Enemy.prototype = {
 
-		attack: function( target, playerNavMeshGroup ) {
+		setTarget: function( targetMesh ) {
 
-			// console.log("attack", target.position );
-			// this.calculatePath( this.mesh.position, target.position, playerNavMeshGroup );
+			this.mesh.position.copy( targetMesh.position );
+			this._target = targetMesh;
 
 		},
 
@@ -75,7 +75,7 @@ define(function (require) {
 
 	            // console.log("inputs", fromPosition, targetPosition, playerNavMeshGroup );
 	            // Calculate a path to the target and store it
-	            calculatedPath = patrol.findPath( fromPosition, targetPosition, 'level', playerNavMeshGroup);
+	            var calculatedPath = patrol.findPath( fromPosition, targetPosition, 'level', playerNavMeshGroup);
 	            // console.log("calculated path", calculatedPath);
 
 	            if (calculatedPath && calculatedPath.length) {
@@ -112,8 +112,9 @@ define(function (require) {
 	                }
 	            }
 	        // }
-	    },
 
+	        return calculatedPath;
+	    },
 
     	update: function( deltaTime ) {
 
@@ -128,7 +129,7 @@ define(function (require) {
             timebuffer += deltaTime;
             if ( timebuffer > 1 ) {
             	timebuffer = 0;
-            	this.calculatePath( this.mesh.position, this.target.position );
+            	calculatedPath = this.calculatePath( this.mesh.position, this._target.position );
             }
 
             if (calculatedPath && calculatedPath.length) {
@@ -141,8 +142,21 @@ define(function (require) {
 
                 if (vel.lengthSq() > 0.05 * 0.05) {
                     vel.normalize();
-                    // Mve player to target
-                    this.mesh.position.add(vel.multiplyScalar(deltaTime * this._speed));
+                    
+                    var lookVector = vel.clone();
+                    lookVector.y = 0;
+                    // console.log( lookVector );
+
+                    // character.getPawn().quaternion.setFromUnitVectors( this._rotationAxis, lookVector);
+
+                    // SLERP for smooth rotation
+                    var slerp = new THREE.Quaternion().setFromUnitVectors( this._rotationAxis, lookVector );
+                    slerp.multiply( new THREE.Quaternion( 0, -0.7071, 0, 0.7071 ) );
+                    this.mesh.quaternion.slerp( slerp, deltaTime*10 );
+
+                    // Move player to target
+                    this.mesh.position.add( vel.multiplyScalar(deltaTime * this._speed) );
+
                 }
                 else {
                     // Remove node from the path we calculated

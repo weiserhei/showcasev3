@@ -327,8 +327,8 @@ define(function (require) {
 			} );
 		}
 
-		var pumpe = new Character( "assets/models/pump/pump.dae", "Keyframe Model" );
-		characterController.add( pumpe );
+		// var pumpe = new Character( "assets/models/pump/pump.dae", "Keyframe Model" );
+		// characterController.add( pumpe );
 
 		// var cube = new THREE.Mesh( new THREE.BoxGeometry(1, 1, 1), new THREE.MeshPhongMaterial({ color: 0xffaa00 }) );
 		// scene.add( cube );

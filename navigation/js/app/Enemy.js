@@ -13,6 +13,7 @@ define(function (require) {
 	var THREE = require("three");
 	var scene = require("scene");
 	var loadingManager = require("loadingManager");
+	var ColladaLoader = require("ColladaLoader");
 
 	var model = null;
 

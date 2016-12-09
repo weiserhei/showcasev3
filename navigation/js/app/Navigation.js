@@ -141,7 +141,7 @@ define(function (require) {
 
     function onDocumentMouseClick (event) {
         // event.preventDefault();
-        // console.log( event.which );
+        console.log( event.which );
 
         switch (event.which) {
             case 1:

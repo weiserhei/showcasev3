@@ -263,7 +263,7 @@ define(function (require) {
 
 			jsonLoader.load( this._url, function ( geometry, materials ) {
 
-				console.log( "geo, mat", geometry, materials );
+				// console.log( "geo, mat", geometry, materials );
 				var material = new THREE.MultiMaterial( materials );
 
 				// SKINNING
@@ -274,11 +274,8 @@ define(function (require) {
 
 				var mesh = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
 				// var mesh = new THREE.Mesh( geometry, material );
-				mesh.scale.set( 1, 1, 1 );
 				// var matrix = new THREE.Matrix4().makeTranslation(0,8,0);
 				// geometry.applyMatrix( matrix );
-
-				mesh.position.set( 0, 0, 0 );
 
 				// scene.add( skinnedMesh );
 				var mixer = new THREE.AnimationMixer( mesh );
@@ -304,7 +301,7 @@ define(function (require) {
 
 					}};
 
-					animFolder.add( obj, "customPlay" ).name( "Play "+i );
+					animFolder.add( obj, "customPlay" ).name( "Play "+mesh.geometry.animations[ i ].name );
 
 				}
 
@@ -317,16 +314,7 @@ define(function (require) {
 						oldUpdateFunction();
 
 						mixer.update( deltaTime );
-						// if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
-						//     animation.stop();
-						//     if( loop.sound instanceof THREE.Audio ) {
-						//     	if ( loop.sound.isPlaying ) {
-						//         	loop.sound.stop();
-						//     	}
-						//         loop.sound.play();
-						//     }
-						//     animation.play(loop.start);
-						// }
+
 					}
 
 				})();

@@ -1,6 +1,12 @@
 # showcasev3
 Blender + three.js magix
 
-https://weiserhei.github.io/showcasev3/showcase/
+##Skinned Models from Blender
+###https://weiserhei.github.io/showcasev3/showcase/
 
 ![showcase](/showcase/og-showcase.png)
+
+##Pathfinding with PatrolJS
+###https://weiserhei.github.io/showcasev3/navigation/
+
+![showcase](/navigation/og-navigation.png)

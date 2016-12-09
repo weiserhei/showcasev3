@@ -24,9 +24,7 @@ define(function (require) {
 		audioListener = require("audioListener"),
 		StateMachine = require("StateMachine"),
 		loadingManager = require("loadingManager"),
-	    debugGUI = require('debugGUI'),
-	    Enemy = require('Enemy');
-	    // patrol = require('../libs/patrol2');
+	    debugGUI = require('debugGUI');
 
 	var characterController = new CharacterController(); // update sekeletons, add gui button
 	var deltaTime = 0; // loop variable
@@ -147,24 +145,6 @@ define(function (require) {
 		characterController.add( wache );
 
 		function callbackWache ( dae ) {
-
-			// var jsonLoader = new THREE.JSONLoader();
-
-		    // jsonLoader.load( 'assets/maps/navmesh_demo/level.js', function( geometry, materials ) {
-		    // jsonLoader.load( 'assets/maps/navmesh_playground/playground.json', function( geometry, materials ) {
-		    // 	level = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
-		    // 	scene.add(level);
-		    // });
-
-			// var wache3 = wache.pvp( "wache3", cbw2 );
-
-			// function cbw2( model ) {
-			// 	model.position.set( 1, 0, 0 );
-			// 	model.rotation.set( 0, - Math.PI / 2, 0 );
-			// 	wache3.attack( wache );
-			// 	setTimeout(function(){ wache3.die(); console.log(wache3); console.log(wache); }, 3000);
-	  //   		console.log( wache3.loop );
-			// }
 
 			// wache
 			// dae.children[1].children[0].material.color.setHex( 0x00FF00 );

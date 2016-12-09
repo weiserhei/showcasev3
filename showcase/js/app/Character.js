@@ -70,14 +70,6 @@ define(function (require) {
 
     	},
 
-    	pvp: function( name, callback ) {
-
-    		var wache = new Character( "assets/models/wache/wache_body_only2.dae", name, callback );
-    		wache.load();
-    		return wache;
-
-    	},
-
 		subscribeOnLoad: function(fn) {
 		    this.handlers.push(fn);
 		},

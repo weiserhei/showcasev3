@@ -7,7 +7,6 @@ define(["three","debugGUI"],
 define(function (require) {
 
     var debugGUI = require('debugGUI');
-    var	Navigation = require('Navigation');
 	// return function () {};
 
     'use strict';
@@ -16,12 +15,10 @@ define(function (require) {
     var guiFolder = dg.addFolder("Models");
     guiFolder.open();
 
-    var navigation = { update: function() {} }; // dummy function for update
     var activeCharacter = { update: function() {} }; // dummy function for update
 
     function CharacterController() {
     	this._activeCharacter = { update: function() {} };
-        navigation = new Navigation();
     }
 
     CharacterController.prototype = {
@@ -29,7 +26,6 @@ define(function (require) {
         setActive: function( character ) {
             this._activeCharacter = character;
             activeCharacter = character;
-            navigation.setCharacter( character );
         },
    //   disable: function( character ) {
             // var index = activeCharacters.indexOf(character);
@@ -48,7 +44,6 @@ define(function (require) {
     	*/
     	update: function( deltaTime ) {
 			activeCharacter.update( deltaTime );
-            navigation.update( deltaTime );
     	}
 
     };

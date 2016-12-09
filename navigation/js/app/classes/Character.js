@@ -28,6 +28,8 @@ define(function (require) {
 	var colladaLoader = new THREE.ColladaLoader();
 	colladaLoader.options.convertUpAxis = true;
 
+	var jsonLoader = new THREE.JSONLoader();
+
 	function cleanUp() {
 
 		// remove existing Folders from the gui
@@ -248,6 +250,91 @@ define(function (require) {
 			return fsm;
 
 		},
+		loadjs: function() {
+
+			cleanUp();
+
+			var self = this;
+
+			// Add new Folder to the GUI
+			var newFolder = dg.addFolder( this._name );
+			newFolder.open();
+			folder.push( this._name );
+			console.log("load", this._url );
+
+			jsonLoader.load( this._url, function ( geometry, materials ) {
+
+				console.log( "geo, mat", geometry, materials );
+				var material = new THREE.MultiMaterial( materials );
+
+				// SKINNING
+				for ( var k in materials ) {
+					materials[k].skinning = true;
+					materials[k].side = THREE.DoubleSide;
+				}
+
+				var mesh = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
+				// var mesh = new THREE.Mesh( geometry, material );
+				mesh.scale.set( 1, 1, 1 );
+				// var matrix = new THREE.Matrix4().makeTranslation(0,8,0);
+				// geometry.applyMatrix( matrix );
+
+				mesh.position.set( 0, 0, 0 );
+
+				// scene.add( skinnedMesh );
+				var mixer = new THREE.AnimationMixer( mesh );
+				console.log( mesh.geometry.animations );
+				// mixer.clipAction( mesh.geometry.animations[ 0 ] ).play();
+
+				skeletonHelper = new THREE.SkeletonHelper( mesh );
+				skeletonHelper.material.linewidth = 2;
+				skeletonHelper.visible = false;
+				scene.add( skeletonHelper );
+				var animFolder = newFolder.addFolder("Animation");
+				animFolder.open();
+				animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
+
+				(function() {
+
+					var oldUpdateFunction = self.update;
+
+					self.update= function( deltaTime ) {
+
+						oldUpdateFunction();
+
+						mixer.update( deltaTime );
+						// if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
+						//     animation.stop();
+						//     if( loop.sound instanceof THREE.Audio ) {
+						//     	if ( loop.sound.isPlaying ) {
+						//         	loop.sound.stop();
+						//     	}
+						//         loop.sound.play();
+						//     }
+						//     animation.play(loop.start);
+						// }
+					}
+
+				})();
+
+				self._mesh = mesh;
+
+				// dae.updateMatrix();
+				modelGroup.add( mesh );
+				if ( this._onLoad !== undefined ) {
+					this._onLoad( mesh );
+				}
+				console.log( mesh );
+
+				tweenHelper.fitObject( mesh );
+
+				// load complete
+				this.fire( this );
+
+			}.bind( this ) );
+
+		},
+
     	load: function () {
 
 			cleanUp();

@@ -81,6 +81,8 @@ define(function (require) {
 			// character.getPawn().position.set(-3.5, 0.5, 5.5);
 		    // // Set the player's navigation mesh group
 		    // playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position);
+
+            console.log( character );
 		    playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
 
             enemy = new Enemy();
@@ -109,7 +111,7 @@ define(function (require) {
                 var vel = targetPosition.clone().sub(character.getPawn().position);
 
                 // console.log("moving player");
-                character.animations.walk();
+                // character.animations.walk();
 
                 if (vel.lengthSq() > 0.05 * 0.05) {
                     vel.normalize();
@@ -135,7 +137,7 @@ define(function (require) {
                 }
             }
             else {
-                character.animations.idle();
+                // character.animations.idle();
             }
 
     	}

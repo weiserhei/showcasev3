@@ -40,6 +40,10 @@ define(function (require) {
         add: function( character ) {
             guiFolder.add( character, "load" ).name("Load "+character.getName());
             character.subscribeOnLoad( this.setActive );
+        },        
+        addjs: function( character ) {
+            guiFolder.add( character, "loadjs" ).name("Load "+character.getName());
+            character.subscribeOnLoad( this.setActive );
     	},
     	/*
     	load: function( character ) {

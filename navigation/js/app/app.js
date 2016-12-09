@@ -102,6 +102,12 @@ define(function (require) {
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
+		var wachejs = new Character( "assets/models/wache2/wache02shorts_idle_walking.json", "WacheJSON" );
+		characterController.addjs( wachejs );
+
+		var fryman = new Character( "assets/models/fryman/fryman_animation.json", "Fryman" );
+		characterController.addjs( fryman );
+
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );
 

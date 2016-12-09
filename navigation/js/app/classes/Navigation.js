@@ -82,11 +82,10 @@ define(function (require) {
 		    // // Set the player's navigation mesh group
 		    // playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position);
 
-            console.log( character );
 		    playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
 
-            enemy = new Enemy();
-            enemy.setTarget( character.getPawn() );
+            // enemy = new Enemy();
+            // enemy.setTarget( character.getPawn() );
 
         },
 
@@ -100,7 +99,7 @@ define(function (require) {
                 return;
             }
 
-            enemy.update( deltaTime );
+            // enemy.update( deltaTime );
 
             // level, calculatedPath, player
             var targetPosition;

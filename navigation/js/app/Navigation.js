@@ -25,7 +25,9 @@ define(function (require) {
 
     function Navigation() {
 
-    	container.addEventListener( 'click', onDocumentMouseClick, false );
+    	//container.addEventListener( 'click', onDocumentMouseClick, false );
+    	document.addEventListener( 'mousedown', onDocumentMouseClick, false );
+	    
     	this._speed = 5;
         this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 

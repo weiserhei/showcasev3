@@ -7,7 +7,7 @@ define(["three","debugGUI"],
 define(function (require) {
 
     var debugGUI = require('debugGUI');
-    var	Navigation = require('Navigation');
+    var	Navigation = require('classes/Navigation');
 	// return function () {};
 
     'use strict';

@@ -6,7 +6,7 @@ define(function (require) {
     var	camera = require('camera');
     var	scene = require('scene');
     var dg = require('debugGUI');
-    var Enemy = require('Enemy');
+    var Enemy = require('classes/Enemy');
     var	loadingManager = require('loadingManager');
     var container = require("container");
 

@@ -18,13 +18,12 @@ define(function (require) {
 		tweenHelper = require("tweenHelper"),
 		ColladaLoader = require("ColladaLoader"),
 		OBJLoader = require("OBJLoader"),
-		Character = require("Character"),
-		CharacterController = require("CharacterController"),
+		Character = require("classes/Character"),
+		CharacterController = require("classes/CharacterController"),
 		audioListener = require("audioListener"),
 		StateMachine = require("StateMachine"),
 		loadingManager = require("loadingManager"),
-	    debugGUI = require('debugGUI'),
-	    Enemy = require('Enemy');
+	    debugGUI = require('debugGUI');
 	    // patrol = require('../libs/patrol2');
 
 	var characterController = new CharacterController(); // update sekeletons, add gui button

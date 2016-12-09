@@ -12,7 +12,7 @@ define(function (require) {
 		ColladaLoader = require("ColladaLoader"),
 		audioListener = require("audioListener"),
 		StateMachine = require("StateMachine"),
-		Weapon = require("Weapon"),
+		Weapon = require("classes/Weapon"),
 	    debugGUI = require('debugGUI');
 
 	var modelGroup = new THREE.Group();

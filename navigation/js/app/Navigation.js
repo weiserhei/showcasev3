@@ -8,6 +8,7 @@ define(function (require) {
     var dg = require('debugGUI');
     var Enemy = require('Enemy');
     var	loadingManager = require('loadingManager');
+    var container = require("container");
 
     // patrol JS
     var raycaster = new THREE.Raycaster(),
@@ -24,7 +25,7 @@ define(function (require) {
 
     function Navigation() {
 
-    	document.addEventListener( 'click', onDocumentMouseClick, false );
+    	container.addEventListener( 'click', onDocumentMouseClick, false );
     	this._speed = 5;
         this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 

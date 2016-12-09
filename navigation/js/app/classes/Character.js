@@ -260,7 +260,6 @@ define(function (require) {
 			var newFolder = dg.addFolder( this._name );
 			newFolder.open();
 			folder.push( this._name );
-			console.log("load", this._url );
 
 			jsonLoader.load( this._url, function ( geometry, materials ) {
 
@@ -293,6 +292,21 @@ define(function (require) {
 				var animFolder = newFolder.addFolder("Animation");
 				animFolder.open();
 				animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
+
+				for ( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+
+					var obj = { customPlay: function() {
+
+									for( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+										mixer.clipAction( mesh.geometry.animations[ i ] ).stop();
+									}
+									mixer.clipAction( mesh.geometry.animations[ i ] ).play();
+
+					}};
+
+					animFolder.add( obj, "customPlay" ).name( "Play "+i );
+
+				}
 
 				(function() {
 

@@ -653,6 +653,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		if ( scope.enabled === false ) return;
 
 		// event.preventDefault();
+		console.log("I was here" , event);
 
 		if ( event.button === scope.mouseButtons.ORBIT ) {
 

@@ -6,7 +6,8 @@ define(function (require) {
     var	camera = require('camera');
     var	scene = require('scene');
     var dg = require('debugGUI');
-    var	Enemy = require('Enemy');
+    var Enemy = require('Enemy');
+    var	loadingManager = require('loadingManager');
 
     // patrol JS
     var raycaster = new THREE.Raycaster(),
@@ -27,7 +28,7 @@ define(function (require) {
     	this._speed = 5;
         this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 
-		var obj = { add: function(){ 
+		// var obj = { add: function(){ 
 
 							var geometry = new THREE.BoxGeometry( 0.3, 0.3, 0.3 );
 							var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
@@ -35,7 +36,7 @@ define(function (require) {
 							scene.add( target );
 							// target.position.copy(player.position);
 
-							var objLoader = new THREE.OBJLoader();
+							var objLoader = new THREE.OBJLoader( loadingManager );
 							var playground = "assets/maps/navmesh_playground/rendergeo_playground.obj";
 							objLoader.load( playground, function callback( group ) {
 								level.push( group.children[1] );
@@ -58,9 +59,9 @@ define(function (require) {
 						    	scene.add(mesh);
 
 							});
-						}
-		};
-		dg.add( obj, "add" ).name("Load Nav");
+						// }
+		// };
+		// dg.add( obj, "add" ).name("Load Nav");
 
     }
 

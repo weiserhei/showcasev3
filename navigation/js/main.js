@@ -57,6 +57,7 @@ require([
 
         loadingManager.onLoad = function() {
             App.initialize();
+            console.log("start anim");
             App.animate();
         };
         

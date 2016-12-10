@@ -604,6 +604,9 @@ define(function (require) {
 						// start with idle animation
 						obj.idle();
 
+						self.run = obj.walk;
+						self.idle = obj.idle;
+
 						self.animations = obj;
 						// self.setupFSM( animation, obj, loop );
 

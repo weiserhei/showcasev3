@@ -18,6 +18,7 @@ define(function (require) {
 
 	var model = null;
 
+	/*
 	var colladaLoader = new THREE.ColladaLoader( loadingManager );
 	colladaLoader.options.convertUpAxis = true;
 	colladaLoader.load( "assets/models/monster/monster.dae", function callback( collada ) {
@@ -31,7 +32,7 @@ define(function (require) {
 		// model.scale.multiplyScalar( 0.01 );
 
 	} );
-	
+	*/
 
 	var jsonLoader = new THREE.JSONLoader();
 	jsonLoader.load( "assets/models/gumi/gumi.json", function ( geometry, materials ) {
@@ -63,11 +64,9 @@ define(function (require) {
 
 		this._speed = 4;
 		this._target = null;
-
 		this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
 
 		var mesh = this.mesh;
-		
 		var mixer = new THREE.AnimationMixer( this.mesh );
 		this._mixer = mixer;
 
@@ -131,6 +130,17 @@ define(function (require) {
 		// 	animFolder.add( obj, "customPlay" ).name( "Play "+mesh.geometry.animations[ i ].name );
 
 		// }
+
+		var box = new THREE.Box3().setFromObject( model )
+		var boundingBoxSize = box.max.sub( box.min );
+		var height = boundingBoxSize.y;
+
+		var geometry = new THREE.SphereBufferGeometry( 0.2, 7, 2 );
+		geometry.scale( 1, 2, 1 );
+		var healthDiamond = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( {color: 0x00FF00} ) );
+		healthDiamond.position.copy( this.mesh.position );
+		healthDiamond.position.y = height + 0.5;
+		this.mesh.add( healthDiamond );
 
 	}
 

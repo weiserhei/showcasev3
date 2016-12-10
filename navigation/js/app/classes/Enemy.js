@@ -128,6 +128,7 @@ define(function (require) {
 		setTarget: function( targetMesh ) {
 
 			this.mesh.position.copy( targetMesh.position );
+			this.mesh.position.z -= 1;
 			this._target = targetMesh;
 
 		},
@@ -198,7 +199,6 @@ define(function (require) {
             direction.y = 0;
 
             // character.getPawn().quaternion.setFromUnitVectors( this._rotationAxis, lookVector);
-
             // SLERP for smooth rotation
             tempQuaternion.setFromUnitVectors( this._rotationAxis, direction );
             // slerp.multiply( new THREE.Quaternion( 0, -0.7071, 0, 0.7071 ) ); // offset rotation 90 deg

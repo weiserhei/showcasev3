@@ -107,6 +107,8 @@ define(function (require) {
 
 		var fryman = new Character( "assets/models/fryman/fryman_animation.json", "Fryman" );
 		characterController.addjs( fryman );
+		var gumi = new Character( "assets/models/gumi/gumi.json", "gumi" );
+		characterController.addjs( gumi );
 
 		var wache = new Character( "assets/models/wache/wache_body_only2.dae", "Wache", callbackWache );
 		characterController.add( wache );

@@ -269,7 +269,6 @@ define(function (require) {
 				// SKINNING
 				for ( var k in materials ) {
 					materials[k].skinning = true;
-					materials[k].side = THREE.DoubleSide;
 				}
 
 				var mesh = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
@@ -290,20 +289,75 @@ define(function (require) {
 				animFolder.open();
 				animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 
-				for ( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+				var action = {};
+				action.idle  = mixer.clipAction( mesh.geometry.animations[ 0 ] );
+				action.run   = mixer.clipAction( mesh.geometry.animations[ 1 ] );
+				action.jump  = mixer.clipAction( mesh.geometry.animations[ 2 ] );
+				action.slide = mixer.clipAction( mesh.geometry.animations[ 3 ] );
 
-					var obj = { customPlay: function() {
+				action.idle.weight  = 1;
+				action.run.weight   = 1;
+				action.jump.weight  = 0;
+				action.slide.weight = 0;
 
-									for( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
-										mixer.clipAction( mesh.geometry.animations[ i ] ).stop();
-									}
-									mixer.clipAction( mesh.geometry.animations[ i ] ).play();
+				console.log( action );
+				// self.action = action;
 
-					}};
+				action.idle.play();
+				// action.run.play();
+				// self.run = mixer.clipAction( mesh.geometry.animations[ 1 ] ).play;
 
-					animFolder.add( obj, "customPlay" ).name( "Play "+mesh.geometry.animations[ i ].name );
+				self.run = function() { 
 
-				}
+					// if( ! action.run.isScheduled() ) {
+					// if( action.run.weight == 0 ) {
+					// if( action.run.getEffectiveWeight() < 0.01 ) {
+					if( ! action.run.isRunning() ) {
+						// action.run.play();
+
+						// action.run.weight   = 1;
+						// action.run.reset().fadeIn( 0.3 ).play();
+						// action.idle.fadeOut( 0.3 ).play();
+
+						action.run.reset().play().crossFadeFrom( action.idle, 0.3 );
+						// console.log("run");
+					}
+
+				};
+				self.idle = function() { 				
+
+					// if( ! action.idle.isScheduled() ) {
+					if( ! action.idle.isRunning() ) {
+					// if( action.idle.getEffectiveWeight() == 0 ) {
+					// if( action.idle.weight == 0 ) {
+						// action.run.play();
+
+						// action.idle.weight  = 1;
+						// action.idle.reset().fadeIn( 0.3 ).play();
+						// action.run.fadeOut( 0.3 ).play();
+
+						action.idle.reset().play().crossFadeFrom( action.run, 0.3 );
+
+					}
+				};
+
+				// var mixer = new THREE.AnimationMixer( mesh );
+				// self.mixer = mixer;
+
+				// for ( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+
+				// 	var obj = { customPlay: function() {
+
+				// 					for( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+				// 						mixer.clipAction( mesh.geometry.animations[ i ] ).stop();
+				// 					}
+				// 					mixer.clipAction( mesh.geometry.animations[ i ] ).play();
+
+				// 	}};
+
+				// 	animFolder.add( obj, "customPlay" ).name( "Play "+mesh.geometry.animations[ i ].name );
+
+				// }
 
 				(function() {
 

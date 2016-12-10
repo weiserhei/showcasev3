@@ -30,10 +30,30 @@ define(function (require) {
 		// model.scale.multiplyScalar( 0.01 );
 
 	} );
+	
+
+	var jsonLoader = new THREE.JSONLoader();
+	jsonLoader.load( "assets/models/gumi/gumi.json", function ( geometry, materials ) {
+
+		// console.log( "geo, mat", geometry, materials );
+		var material = new THREE.MultiMaterial( materials );
+
+		// SKINNING
+		for ( var k in materials ) {
+			materials[k].skinning = true;
+		}
+
+		var mesh = new THREE.SkinnedMesh(geometry, new THREE.MultiMaterial(materials));
+		model = mesh;
+
+	} );
+
 
 	var playerNavMeshGroup = 0;
 	var pathLines;
 	var calculatedPath = null;
+
+	var tempQuaternion = new THREE.Quaternion();
 
 	function Enemy() {
 
@@ -44,6 +64,62 @@ define(function (require) {
 		this._target = null;
 
 		this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
+
+		var mesh = this.mesh;
+		
+		var mixer = new THREE.AnimationMixer( this.mesh );
+		this._mixer = mixer;
+
+		var action = {};
+		action.idle  = mixer.clipAction( mesh.geometry.animations[ 0 ] );
+		action.run   = mixer.clipAction( mesh.geometry.animations[ 1 ] );
+		action.jump  = mixer.clipAction( mesh.geometry.animations[ 2 ] );
+		action.slide = mixer.clipAction( mesh.geometry.animations[ 3 ] );
+
+		action.idle.weight  = 1;
+		action.run.weight   = 1;
+		action.jump.weight  = 1;
+		action.slide.weight = 0;
+
+		action.idle.play();
+		// action.run.play();
+
+		this._run = function() { 
+			if( ! action.run.isRunning() ) {
+				// console.log("run");
+				// action.run.reset().play().crossFadeFrom( action.idle, 0.3 );
+				action.run.reset().play().crossFadeFrom( action.jump, 0.3 );
+			}
+		};
+		this._idle = function() { 				
+			if( ! action.idle.isRunning() ) {
+				action.idle.reset().play().crossFadeFrom( action.run, 0.3 );
+			}
+		};		
+		this._jump = function() { 				
+			if( ! action.jump.isRunning() ) {
+				action.idle.enabled = false;
+				action.jump.reset().play().crossFadeFrom( action.run, 0.3 );
+			}
+		};
+
+		// var mixer = new THREE.AnimationMixer( mesh );
+		// self.mixer = mixer;
+
+		// for ( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+
+		// 	var obj = { customPlay: function() {
+
+		// 					for( let i = 0; i < mesh.geometry.animations.length; i ++ ) {
+		// 						mixer.clipAction( mesh.geometry.animations[ i ] ).stop();
+		// 					}
+		// 					mixer.clipAction( mesh.geometry.animations[ i ] ).play();
+
+		// 	}};
+
+		// 	animFolder.add( obj, "customPlay" ).name( "Play "+mesh.geometry.animations[ i ].name );
+
+		// }
 
 	}
 
@@ -117,6 +193,19 @@ define(function (require) {
 	        return calculatedPath;
 	    },
 
+	    lookAt: function( direction, deltaTime, rotationSpeed ) {
+
+            direction.y = 0;
+
+            // character.getPawn().quaternion.setFromUnitVectors( this._rotationAxis, lookVector);
+
+            // SLERP for smooth rotation
+            tempQuaternion.setFromUnitVectors( this._rotationAxis, direction );
+            // slerp.multiply( new THREE.Quaternion( 0, -0.7071, 0, 0.7071 ) ); // offset rotation 90 deg
+            this.mesh.quaternion.slerp( tempQuaternion, deltaTime*rotationSpeed );
+
+	    },
+
     	update: function( deltaTime ) {
 
             // patrolJS
@@ -127,33 +216,39 @@ define(function (require) {
             // level, calculatedPath, player
             var targetPosition;
 
+            this._mixer.update( deltaTime );
+
             timebuffer += deltaTime;
             if ( timebuffer > 1 ) {
             	timebuffer = 0;
             	calculatedPath = this.calculatePath( this.mesh.position, this._target.position );
             }
 
-            if (calculatedPath && calculatedPath.length) {
+            if ( this.mesh.position.distanceTo(this._target.position ) < 2 ) {
+            	// console.log("hallo");
+
+                var vel = this._target.position.clone().sub(this.mesh.position);
+                vel.normalize();
+                
+                this.lookAt( vel, deltaTime, 3 );
+
+            	this._jump();
+
+            }
+
+            else if (calculatedPath && calculatedPath.length) {
                 targetPosition = calculatedPath[0];
 
                 var vel = targetPosition.clone().sub(this.mesh.position);
 
                 // console.log("moving enemy", this.mesh.position, targetPosition );
                 // character.animations.walk();
+                this._run();
 
                 if (vel.lengthSq() > 0.05 * 0.05) {
                     vel.normalize();
                     
-                    var lookVector = vel.clone();
-                    lookVector.y = 0;
-                    // console.log( lookVector );
-
-                    // character.getPawn().quaternion.setFromUnitVectors( this._rotationAxis, lookVector);
-
-                    // SLERP for smooth rotation
-                    var slerp = new THREE.Quaternion().setFromUnitVectors( this._rotationAxis, lookVector );
-                    slerp.multiply( new THREE.Quaternion( 0, -0.7071, 0, 0.7071 ) );
-                    this.mesh.quaternion.slerp( slerp, deltaTime*10 );
+                    this.lookAt( vel.clone(), deltaTime, 10 );
 
                     // Move player to target
                     this.mesh.position.add( vel.multiplyScalar(deltaTime * this._speed) );
@@ -166,6 +261,7 @@ define(function (require) {
             }
             else {
                 // character.animations.idle();
+                this._idle();
             }
 
     	}

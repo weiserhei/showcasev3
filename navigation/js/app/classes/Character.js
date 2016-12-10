@@ -72,14 +72,6 @@ define(function (require) {
 
     	},
 
-    	pvp: function( name, callback ) {
-
-    		var wache = new Character( "assets/models/wache/wache_body_only2.dae", name, callback );
-    		wache.load();
-    		return wache;
-
-    	},
-
 		subscribeOnLoad: function(fn) {
 		    this.handlers.push(fn);
 		},
@@ -99,24 +91,14 @@ define(function (require) {
 		    });
 		},
 
-		attack: function( target ) {
-			target.takeDamage( this.weapon.attackDamage );
-			this.animations.fight();
-		},
-		takeDamage: function( howMuch ) {
-			this.healthPoints -= howMuch;
-			if( this.healthPoints <= 0 ) {
-				this.healthPoints = 0;
-				this.die();
-			}
-		},
-		die: function() {
-			// disable
-			this.animations.die();
-		},
     	getName: function() {
     		return this._name;
     	},
+
+    	moveOnMesh: function() {
+
+    	},
+
     	update: function( deltaTime ) {
 			skeletonHelper.update();
 
@@ -136,120 +118,7 @@ define(function (require) {
 	        // }
 
     	},
-    	setupFSM: function( animation, animationFunctions, loop ) {
 
-			// states: idle, walking, running, fighting, dead
-			// events: reset, move, moveFast, attack, die
-
-			var fsm = StateMachine.create({
-
-				initial: 'idle',
-				events: [
-					{ name: 'reset', from: '*',  to: 'idle' },
-					{ name: 'move', from: ['idle','running', 'walking','fighting'], to: 'walking' },
-					{ name: 'moveFast', from: ['idle','running','walking'], to: 'running'   },
-					{ name: 'attack', from: ['idle','walking'], to: 'fighting' },
-					{ name: 'die', from: '*', to: 'dead' },
-				],
-				callbacks: {
-					// constrain safe door to itemslot
-					// fsm.onafterinteract = function( event, from, to, msg ) {
-					onenterstate: function( event, from, to ) {
-
-						// var action = this.transitions()[ 0 ];
-
-					},
-					onbeforeattack: function(event, from, to) { 
-
-						// if ( this.is( "locked" ) ) {
-						//     // some UI action, minigame, unlock this shit
-						//    	// return if itemslot isnt filled
-						//     if ( constraint.active === true ) {
-						//     	sounds.beep.play();
-						//     	// cancel transition
-						//     	return false;
-						//     }
-
-						// }
-
-					},
-					onidle: function() {
-						animationFunctions.idle();
-						animation.play( loop.start, loop.end );
-					},
-					onwalking: function() {
-						animationFunctions.walk();
-						animation.play( loop.start, loop.end );
-					},
-					onrunning: function() {
-						animationFunctions.run();
-						animation.play( loop.start, loop.end );
-					},
-					onfighting: function(event, from, to, msg) { 
-						animationFunctions.fight();
-						animation.play( loop.start, loop.end );
-					},
-					ondead: function() {
-						animationFunctions.die();
-						animation.play( loop.start, loop.end );
-					},
-					onreset: function() {
-						animationFunctions.reset();
-					},
-					// onleavestate: function( event, from, to, msg ) {
-					// onafterinteract: function( event, from, to, msg ) {
-					// 	console.log("leaving state", event, from, to, fsm.transitions() );
-
-					// },
-					onleavelocked: function() {
-
-						/*
-						tweens.wheel.onComplete( function() { 
-							fsm.transition(); 
-							safesound.safe_door.stop();						
-						} );
-						tweens.unlock.chain( tweens.wheel );
-						tweens.unlock.onComplete( function() { 
-
-							safesound.safe_door.play(); 
-							// broken
-							// sound1.gain.gain.exponentialRampToValueAtTime( 0.01, sound1.context.currentTime + 2.5 );
-
-						} );
-						tweens.unlock.onStart( 
-							function() { 
-								// sound is too short for the animation :s
-								// setTimeout( function() { sound4.play(); }, 300 );
-								safesound.click_slow.play() 
-							} 
-						);
-						tweens.unlock.start();
-
-						return StateMachine.ASYNC;
-						*/
-
-					},
-					onbeforereset: function( event, from, to ) {
-
-					},
-				}
-
-			});
-	
-			var folder = dg.addFolder("StateMachine");
-			folder.open();
-
-			folder.add( fsm, "current" ).name("Current State").listen();
-			folder.add( fsm, "reset" ).name("Reset");
-
-			folder.add( fsm, "move" ).name("Move");
-			folder.add( fsm, "moveFast" ).name("MoveFast");
-			folder.add( fsm, "attack" ).name("Attack");
-			folder.add( fsm, "die" ).name("die");
-
-			return fsm;
-
-		},
 		loadjs: function() {
 
 			cleanUp();
@@ -264,7 +133,6 @@ define(function (require) {
 			jsonLoader.load( this._url, function ( geometry, materials ) {
 
 				// console.log( "geo, mat", geometry, materials );
-				var material = new THREE.MultiMaterial( materials );
 
 				// SKINNING
 				for ( var k in materials ) {
@@ -313,6 +181,7 @@ define(function (require) {
 					// if( action.run.weight == 0 ) {
 					// if( action.run.getEffectiveWeight() < 0.01 ) {
 					if( ! action.run.isRunning() ) {
+						// console.log("run");
 						// action.run.play();
 
 						// action.run.weight   = 1;
@@ -320,7 +189,6 @@ define(function (require) {
 						// action.idle.fadeOut( 0.3 ).play();
 
 						action.run.reset().play().crossFadeFrom( action.idle, 0.3 );
-						// console.log("run");
 					}
 
 				};
@@ -337,7 +205,6 @@ define(function (require) {
 						// action.run.fadeOut( 0.3 ).play();
 
 						action.idle.reset().play().crossFadeFrom( action.run, 0.3 );
-
 					}
 				};
 

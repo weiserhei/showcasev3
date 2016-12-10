@@ -14,6 +14,7 @@ define(function (require) {
 	var scene = require("scene");
 	var loadingManager = require("loadingManager");
 	var ColladaLoader = require("ColladaLoader");
+	var dg = require("debugGUI");
 
 	var model = null;
 
@@ -81,25 +82,35 @@ define(function (require) {
 		action.jump.weight  = 1;
 		action.slide.weight = 0;
 
-		action.idle.play();
-		// action.run.play();
+		action.jump.loop = THREE.LoopOnce;
+
+		// action.idle.play();
+		action.run.play();
 
 		this._run = function() { 
 			if( ! action.run.isRunning() ) {
 				// console.log("run");
 				// action.run.reset().play().crossFadeFrom( action.idle, 0.3 );
-				action.run.reset().play().crossFadeFrom( action.jump, 0.3 );
+				action.run.reset().play().crossFadeFrom( action.idle, 0.3 );
+				// action.idle.stop();
 			}
 		};
 		this._idle = function() { 				
-			if( ! action.idle.isRunning() ) {
-				action.idle.reset().play().crossFadeFrom( action.run, 0.3 );
-			}
+			// if( ! action.idle.isRunning() ) {
+			// 	console.log("idle");
+			// 	action.idle.reset().play().crossFadeFrom( action.run, 0.3 );
+			// }
 		};		
-		this._jump = function() { 				
-			if( ! action.jump.isRunning() ) {
-				action.idle.enabled = false;
+		this._jump = function() { 
+			if( ! action.jump.isRunning() && ! action.idle.isRunning() ) {
+				console.log("jump");
+				// action.idle.enabled = false;
+				// action.jump.play();
 				action.jump.reset().play().crossFadeFrom( action.run, 0.3 );
+				// action.run.enabled = false;
+				// action.idle.reset().startAt( mixer.time + 1 ).play().fadeIn( 0.3 );
+				action.idle.reset().play().fadeIn( 0.3 );
+				// action.jump.reset().play().fadeIn( 0.3 );
 			}
 		};
 

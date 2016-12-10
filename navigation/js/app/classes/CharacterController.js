@@ -7,7 +7,8 @@ define(["three","debugGUI"],
 define(function (require) {
 
     var debugGUI = require('debugGUI');
-    var	Navigation = require('classes/Navigation');
+    var Navigation = require('classes/Navigation');
+    var	Enemy = require('classes/Enemy');
 	// return function () {};
 
     'use strict';
@@ -24,12 +25,17 @@ define(function (require) {
         navigation = new Navigation();
     }
 
+    var enemy; 
     CharacterController.prototype = {
 
         setActive: function( character ) {
             this._activeCharacter = character;
             activeCharacter = character;
             navigation.setCharacter( character );
+
+
+            enemy = new Enemy();
+            enemy.setTarget( character.getPawn() );
         },
    //   disable: function( character ) {
             // var index = activeCharacters.indexOf(character);
@@ -53,6 +59,9 @@ define(function (require) {
     	update: function( deltaTime ) {
 			activeCharacter.update( deltaTime );
             navigation.update( deltaTime );
+            if( typeof enemy !== 'undefined' ) {
+                enemy.update( deltaTime );
+            }
     	}
 
     };

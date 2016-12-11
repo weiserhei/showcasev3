@@ -71,23 +71,6 @@ define(function (require) {
 		    // Set the player's navigation mesh group
 		    this._playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
 
-
-            var nav = this;
-            var inputs = { 
-                    x:0, 
-                    y:0, 
-                    z:0, 
-                    calc: function() { 
-                        nav.calculatePath( nav._pawn.position, new THREE.Vector3( inputs.x, inputs.y, inputs.z ) ); 
-                    } 
-                };
-            dg.add( inputs, "x" );
-            dg.add( inputs, "y" );
-            dg.add( inputs, "z" );
-            dg.add( inputs, "calc" );
-
-
-
         },
         _drawPathLines: function (fromPosition, calculatedPath) {
 

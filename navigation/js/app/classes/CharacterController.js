@@ -25,7 +25,7 @@ define(function (require) {
         navigation = new Navigation();
     }
 
-    var enemy; 
+    var enemys = [];
     CharacterController.prototype = {
 
         setActive: function( character ) {
@@ -33,9 +33,21 @@ define(function (require) {
             activeCharacter = character;
             navigation.setCharacter( character );
 
+            var o = {
+                spawn: spawn,
+                howMany: 0
+            };
+            function spawn() {
+                for ( var i = 0; i < o.howMany; i ++ ) {
+                    var enemy = new Enemy();
+                    // enemy.setTarget( character.getPawn() );
+                    enemys.push( enemy );
+                }
+            }
 
-            enemy = new Enemy();
-            enemy.setTarget( character.getPawn() );
+            dg.add( o, "howMany" ).min(0).max(99);
+            dg.add( o, "spawn" ).name("Spawn them");
+
         },
    //   disable: function( character ) {
             // var index = activeCharacters.indexOf(character);
@@ -58,9 +70,22 @@ define(function (require) {
     	*/
     	update: function( deltaTime ) {
 			activeCharacter.update( deltaTime );
-            navigation.update( deltaTime );
-            if( typeof enemy !== 'undefined' ) {
-                enemy.update( deltaTime );
+            navigation.update( deltaTime, enemys );
+            var length = enemys.length;
+            if( length > 0 ) {
+                for( let i = 0; i < enemys.length; i ++ ) {
+
+                    if ( enemys[ i ].fsm.is("dead") ) {
+
+                        enemys[ i ].mesh.visible = false;
+                        // var index = enemys.indexOf( enemys[ i ] );
+                        // if (index > -1) {
+                        //     enemys.splice(index, 1);
+                        // }
+                    }
+
+                    enemys[ i ].update( deltaTime, enemys );
+                }
             }
     	}
 

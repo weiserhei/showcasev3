@@ -39,6 +39,20 @@ define(function (require) {
 	function getRandomInt(min, max) {
 	  return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
+	/**
+	 * Returns a number whose value is limited to the given range.
+	 *
+	 * Example: limit the output of this computation to between 0 and 255
+	 * (x * 255).clamp(0, 255)
+	 *
+	 * @param {Number} min The lower boundary of the output range
+	 * @param {Number} max The upper boundary of the output range
+	 * @returns A number in the range [min, max]
+	 * @type Number
+	 */
+	Number.prototype.clamp = function(min, max) {
+	  return Math.min(Math.max(this, min), max);
+	};
 
 	// function getRandomInt(min, max) {
 	//   var MAX_UINT32 = 0xFFFFFFFF;
@@ -101,7 +115,7 @@ define(function (require) {
 
     	this._calculatedPath = null;
     	this._state = 0;
-		this._speed = 4;
+		this._speed = 3;
 		this._target = null;
 		this._health = 100;
 		this._rotationAxis = new THREE.Vector3( 0, 0, 1 );
@@ -188,6 +202,13 @@ define(function (require) {
 		this.mesh.add( this._healthDiamond );
 		this._healthDiamond.position.y = height + 0.5;
 
+		var geometry = new THREE.RingBufferGeometry( 0.3, 0.35, 32, 3 );
+		geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI/2 ) );
+		var material = new THREE.MeshLambertMaterial( { color: 0x00FF00, polygonOffset: true, polygonOffsetFactor: -0.5 } );
+		this._ring = new THREE.Mesh( geometry, material );
+		this._ring.visible = false;
+		this.mesh.add( this._ring );
+
         // var nav = this;
         // var inputs = { 
         //         x:0, 
@@ -213,7 +234,7 @@ define(function (require) {
         // dg.add( inputs, "calc" );
 
         this._calculatedPath = [];
-        this._cooldown = 2;
+        this._cooldown = 1.3;
         this._currentCooldown = 0;
         this.fsm = this._setupFSM();
 
@@ -344,8 +365,13 @@ define(function (require) {
 						var distance = self.mesh.position.distanceTo( enemy.mesh.position );
 						// console.log("distance", distance );
 				    	if( enemy.fsm.is("dead") || distance > 2 ) {
+				    		self._currentCooldown = 0;
 				    		this.run();
 				    	}
+					},
+					onrun: function() {
+						self._ring.visible = false;
+						// self._ring.material.color = new THREE.Color( 0x00FF00 );
 					},
 					ondie: function() {
 						self.die();
@@ -363,6 +389,10 @@ define(function (require) {
 
 			this._calculatedPath = [];
 	    	this._currentCooldown -= deltaTime;
+	    	var color = Math.floor( this._currentCooldown * 100 ).clamp( 0, 100);
+	    	this._ring.visible = true;
+	    	// this._ring.material.color = new THREE.Color("rgb(10,10,"+color+")");
+	    	this._ring.material.color = new THREE.Color("hsl(224, 100%, "+color+"%)");
 
 	    	if ( this._currentCooldown > 0 ) {
 	    		return;
@@ -374,7 +404,7 @@ define(function (require) {
 
 	    	if ( this._health > 0 ) {
 		    	this._jump();
-		    	var attackDamage = getRandomInt( 10, 30 );
+		    	var attackDamage = getRandomInt( 5, 15 );
 		    	if ( enemy.fsm.can( "takeDamage" ) ) {
 		    		enemy.fsm.takeDamage( attackDamage, this );
 		    	}
@@ -384,6 +414,7 @@ define(function (require) {
 
 	    die: function() {
     		this._healthDiamond.material.color = new THREE.Color("rgb(10,10,10)");
+    		this._ring.material.color = new THREE.Color("rgb(10,10,10)");
     		this._die();
 	    },
 
@@ -417,6 +448,7 @@ define(function (require) {
 			var color = new THREE.Color("rgb("+Math.floor(red)+", "+Math.floor(green)+", 0)");
 			// var color = new THREE.Color("rgb(100%, 0%, 0%)");
 			this._healthDiamond.material.color = color;
+			// this._ring.material.color = color;
 	    },
 
     	update: function( deltaTime, enemys ) {

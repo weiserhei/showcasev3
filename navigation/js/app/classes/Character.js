@@ -144,6 +144,13 @@ define(function (require) {
 				// var matrix = new THREE.Matrix4().makeTranslation(0,8,0);
 				// geometry.applyMatrix( matrix );
 
+				var geometry = new THREE.RingBufferGeometry( 0.3, 0.35, 32, 3 );
+				geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI/2 ) );
+				// var material = new THREE.MeshLambertMaterial( { color: 0xffaa00, polygonOffset: true,
+				var material = new THREE.MeshLambertMaterial( { color: 0xFF0000, polygonOffset: true, polygonOffsetFactor: -0.5 } );
+				var ring = new THREE.Mesh( geometry, material );
+				mesh.add( ring );
+
 				// scene.add( skinnedMesh );
 				var mixer = new THREE.AnimationMixer( mesh );
 				console.log( mesh.geometry.animations );

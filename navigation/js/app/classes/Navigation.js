@@ -113,7 +113,7 @@ define(function (require) {
 
                 // Calculate a path to the target and store it
                 calculatedPath = patrol.findPath(fromPosition, toPosition, 'level', this._playerNavMeshGroup);
-                console.log("calculated path", calculatedPath);
+                // console.log("calculated path", calculatedPath);
 
                 if (calculatedPath && calculatedPath.length) {
                     this._drawPathLines( fromPosition, calculatedPath );

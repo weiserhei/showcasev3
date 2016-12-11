@@ -77,7 +77,7 @@ define(function (require) {
 
                     if ( enemys[ i ].fsm.is("dead") ) {
 
-                        enemys[ i ].mesh.visible = false;
+                        // enemys[ i ].mesh.visible = false;
                         // var index = enemys.indexOf( enemys[ i ] );
                         // if (index > -1) {
                         //     enemys.splice(index, 1);

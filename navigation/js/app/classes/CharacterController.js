@@ -45,7 +45,7 @@ define(function (require) {
                 }
             }
 
-            dg.add( o, "howMany" ).min(0).max(99);
+            dg.add( o, "howMany" ).min(0).max(999);
             dg.add( o, "spawn" ).name("Spawn them");
 
         },

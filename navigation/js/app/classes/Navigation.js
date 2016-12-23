@@ -70,6 +70,7 @@ define(function (require) {
 
 		    // Set the player's navigation mesh group
 		    this._playerNavMeshGroup = patrol.getGroup('level', character.getPawn().position );
+            calculatedPath = null;
 
         },
         _drawPathLines: function (fromPosition, calculatedPath) {
@@ -177,7 +178,9 @@ define(function (require) {
                     vel.normalize();
 
                     // console.log("moving player");
-                    this._character.run();
+                    if( this._character.fsm !== undefined ) {
+                        this._character.fsm.run();
+                    }
 
                     // Rotate Player to target
                     var lookVector = vel.clone();
@@ -198,7 +201,9 @@ define(function (require) {
             }
             else {
                 // character.animations.idle();
-                this._character.idle();
+                if( this._character.fsm !== undefined ) {
+                    this._character.fsm.wait();   
+                }
             }
 
     	}

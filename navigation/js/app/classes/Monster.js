@@ -80,7 +80,7 @@ define(function (require) {
 	// }
 
 	var jsonLoader = new THREE.JSONLoader();
-	jsonLoader.load( "assets/models/gumi/gumi.json", function ( geometry, materials ) {
+	jsonLoader.load( "assets/models/monster/monster.dae", function ( geometry, materials ) {
 
 		// console.log( "geo, mat", geometry, materials );
 		var material = new THREE.MultiMaterial( materials );
@@ -141,7 +141,6 @@ define(function (require) {
 		action.run.weight   = 1;
 		action.jump.weight  = 1;
 		action.slide.weight = 0;
-		
 		this.action = action;
 		// action.jump.loop = THREE.LoopOnce;
 

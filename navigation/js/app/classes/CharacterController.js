@@ -25,54 +25,65 @@ define(function (require) {
 
     function CharacterController() {
     	this._activeCharacter = { update: function() {} };
+        this._controllableCharacters = [];
+
         navigation = new Navigation();
+        document.addEventListener( 'mousedown', _onDocumentMouseClick.bind( this ), false );
     }
 
     var enemys = [];
     var raycastBoxes = [];
 
-        var mouse = new THREE.Vector2();
-        var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    var raycaster = new THREE.Raycaster();
 
-        document.addEventListener( 'mousedown', _onDocumentMouseClick, false );
 
-        function getIntersection ( event ) {
+    function getIntersection ( event ) {
 
-            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-            camera.updateMatrixWorld();
+        camera.updateMatrixWorld();
 
-            raycaster.setFromCamera( mouse, camera );
-            var intersects = raycaster.intersectObjects( raycastBoxes );
+        raycaster.setFromCamera( mouse, camera );
+        var intersects = raycaster.intersectObjects( raycastBoxes );
 
-            if ( intersects.length > 0 ) {
-                return intersects[0];
-            }
+        if ( intersects.length > 0 ) {
+            return intersects[0];
         }
+    }
 
-        function _onDocumentMouseClick (event) {
-            // event.preventDefault();
-            //console.log( event.which );
+    function _onDocumentMouseClick (event) {
+        // event.preventDefault();
+        //console.log( event.which );
 
-            switch (event.which) {
-                case 1:
-                    // alert('Left Mouse button pressed.');
-                    break;
-                case 2:
-                    // alert('Middle Mouse button pressed.');
-                    break;
-                case 3:
-                    // alert('Right Mouse button pressed.');
+        switch (event.which) {
+            case 1:
+                // alert('Left Mouse button pressed.');
+                try {
                     var element = getIntersection( event ).object;
-                    console.log( element );
-                    element.material.color = new THREE.Color( 0xFFAA00 );
+                } catch( e ) {
+                    // getIntersection did not return an object
                     break;
-                default:
-                    // alert('You have a strange Mouse!');
-            }
+                }
 
+                element.parent.userData.onClick();
+                var character = element.parent.userData;
+                this.select( character );
+
+                // console.log( element );
+                break;
+            case 2:
+                // alert('Middle Mouse button pressed.');
+                break;
+            case 3:
+                // alert('Right Mouse button pressed.');
+                break;
+            default:
+                // alert('You have a strange Mouse!');
         }
+
+    }
 
     CharacterController.prototype = {
 
@@ -94,9 +105,20 @@ define(function (require) {
                 }
             }
 
-            dg.add( o, "howMany" ).min(0).max(999);
+            dg.add( o, "howMany" ).min(0).max(99);
             dg.add( o, "spawn" ).name("Spawn them");
 
+        },
+
+        select: function( character ) {
+
+            for( let i = 0; i < this._controllableCharacters.length; i ++ ) {
+                this._controllableCharacters[ i ].onDeselect();
+            }
+            this._controllableCharacters = [];
+
+            this._controllableCharacters.push( character );
+            navigation.setCharacter( character );
         },
    //   disable: function( character ) {
             // var index = activeCharacters.indexOf(character);
@@ -120,12 +142,11 @@ define(function (require) {
     	update: function( deltaTime ) {
 			activeCharacter.update( deltaTime );
             navigation.update( deltaTime, enemys );
-            var length = enemys.length;
-            if( length > 0 ) {
+            // var length = enemys.length;
+            // if( length > 0 ) {
                 for( let i = 0; i < enemys.length; i ++ ) {
 
                     if ( enemys[ i ].fsm.is("dead") ) {
-
                         // enemys[ i ].mesh.visible = false;
                         // var index = enemys.indexOf( enemys[ i ] );
                         // if (index > -1) {
@@ -135,7 +156,7 @@ define(function (require) {
 
                     enemys[ i ].update( deltaTime, enemys );
                 }
-            }
+            // }
     	}
 
     };

@@ -17,8 +17,6 @@ define(function (require) {
 	var dg = require("debugGUI");
 	var StateMachine = require("StateMachine");
 
-	var model = null;
-
 	/*
 	var colladaLoader = new THREE.ColladaLoader( loadingManager );
 	colladaLoader.options.convertUpAxis = true;
@@ -104,6 +102,14 @@ define(function (require) {
 
 	var tempQuaternion = new THREE.Quaternion();
 
+	var model = null;
+	// var actions = getActions( mesh );
+
+	// function getActions( mesh ) {
+
+	// 	return actions;
+	// }
+
 	function Enemy() {
 
 		this.mesh = model.clone();
@@ -112,6 +118,7 @@ define(function (require) {
     	var x = getRandomInt( -20, 20 );
     	var z = getRandomInt( -20, 20 );
     	this.mesh.position.set( x, 0, z );
+        this.bb = this.getBoundingBox();
 
     	this._calculatedPath = null;
     	this._state = 0;
@@ -237,10 +244,36 @@ define(function (require) {
         this._cooldown = 1.3;
         this._currentCooldown = 0;
         this.fsm = this._setupFSM();
+        // scene.add( this.bb );
 
 	}
 
 	Enemy.prototype = {
+
+		getBoundingBox: function() {
+
+			var tempPosition = this.mesh.position;
+
+			// this.mesh.updateMatrixWorld();
+			// var upscale = upscale || 1.3;
+			// mesh.scale.multiplyScalar( upscale / 1 );
+			this.mesh.position.set( 0, 0, 0 );
+			var bbox = new THREE.BoxHelper( this.mesh );
+			// bbox.update( this.mesh );
+			// mesh.scale.multiplyScalar( 1 / upscale );
+			// bbox.scale.set( 1.5, 1.5, 1.5 );
+			// bbox.position.set( - 0.02, 0.40, -0.54 );
+			// bbox.material.visible = false;
+			// bbox.position.set( 0, 0, 0 );
+			// bbox.rotation.copy( this.mesh.rotation );
+			// bbox.position.copy( this.mesh.position );
+			// console.log("bbox", bbox );
+			this.mesh.add ( bbox );
+			this.mesh.position.copy( tempPosition );
+
+			return bbox;
+
+		},
 
 		remove: function() {
 
@@ -520,6 +553,7 @@ define(function (require) {
                     this.lookAt( vel.clone(), deltaTime, 10 );
 
                     // Move player to target
+
                     this.mesh.position.add( vel.multiplyScalar(deltaTime * this._speed) );
 
                 }

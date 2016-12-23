@@ -9,6 +9,9 @@ define(function (require) {
     var debugGUI = require('debugGUI');
     var Navigation = require('classes/Navigation');
     var	Enemy = require('classes/Enemy');
+
+    var camera = require("camera");
+
 	// return function () {};
 
     'use strict';
@@ -26,6 +29,51 @@ define(function (require) {
     }
 
     var enemys = [];
+    var raycastBoxes = [];
+
+        var mouse = new THREE.Vector2();
+        var raycaster = new THREE.Raycaster();
+
+        document.addEventListener( 'mousedown', _onDocumentMouseClick, false );
+
+        function getIntersection ( event ) {
+
+            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+            camera.updateMatrixWorld();
+
+            raycaster.setFromCamera( mouse, camera );
+            var intersects = raycaster.intersectObjects( raycastBoxes );
+
+            if ( intersects.length > 0 ) {
+                return intersects[0];
+            }
+        }
+
+        function _onDocumentMouseClick (event) {
+            // event.preventDefault();
+            //console.log( event.which );
+
+            switch (event.which) {
+                case 1:
+                    // alert('Left Mouse button pressed.');
+                    break;
+                case 2:
+                    // alert('Middle Mouse button pressed.');
+                    break;
+                case 3:
+                    // alert('Right Mouse button pressed.');
+                    var element = getIntersection( event ).object;
+                    console.log( element );
+                    element.material.color = new THREE.Color( 0xFFAA00 );
+                    break;
+                default:
+                    // alert('You have a strange Mouse!');
+            }
+
+        }
+
     CharacterController.prototype = {
 
         setActive: function( character ) {
@@ -42,6 +90,7 @@ define(function (require) {
                     var enemy = new Enemy();
                     // enemy.setTarget( character.getPawn() );
                     enemys.push( enemy );
+                    raycastBoxes.push( enemy.getBoundingBox() );
                 }
             }
 

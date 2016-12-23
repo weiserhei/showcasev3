@@ -67,9 +67,10 @@ define(function (require) {
     Character.prototype = {
 
     	getPawn: function() {
-
     		return this._mesh;
-
+    	},
+    	getName: function() {
+    		return this._name;
     	},
 
 		subscribeOnLoad: function(fn) {
@@ -90,14 +91,6 @@ define(function (require) {
 		        item.call(scope, o);
 		    });
 		},
-
-    	getName: function() {
-    		return this._name;
-    	},
-
-    	moveOnMesh: function() {
-
-    	},
 
     	update: function( deltaTime ) {
 			skeletonHelper.update();

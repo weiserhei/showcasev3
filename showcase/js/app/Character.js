@@ -360,7 +360,7 @@ define(function (require) {
 						var start = 0;
 						var max = animation.data.length;
 						var fps = animation.data.fps;
-
+						console.log( fps );
 						var loop = { start: 0, end: 0, sound: null };
 						self.loop = loop;
 						// animFolder.add( loop, "start" ).max(max).min(0);

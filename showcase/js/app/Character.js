@@ -353,6 +353,7 @@ define(function (require) {
 						animFolder.add( clip, "timeScale" ).max(2).min(0.1);
 						var aPlay = animFolder.add( clip, "play" ).name("PLAY "+animations[ 0 ].name);
 						var aStop = animFolder.add( clip, "stop" ).name("STOP "+animations[ 0 ].name);
+						var aPlay = animFolder.add( clip, "paused" ).name( animations[ 0 ].name+" Playing" );
 
 						var start = 0;
 						var max = animations[ 0 ].duration;

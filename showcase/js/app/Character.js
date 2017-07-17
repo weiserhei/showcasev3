@@ -20,7 +20,7 @@ define(function (require) {
 
 	var dg = debugGUI;
 	var folder = [];
-	var skeletonHelper = { update: function(){} };
+	var skeletonHelper;
 	var activeCharacter;
 
 	// var kfAnimations = [];
@@ -108,7 +108,6 @@ define(function (require) {
     		return this._name;
     	},
     	update: function( deltaTime ) {
-			skeletonHelper.update();
 
             // console.log( this.animation.currentTime );
 	        // if ( this.animation.currentTime > this.loop.end || this.animation.currentTime < this.loop.start ) {
@@ -327,39 +326,38 @@ define(function (require) {
 						// enable casting shadows
 						child.castShadow = true;
 						// child.receiveShadow = true;
-
 					}
 
 					if ( child instanceof THREE.SkinnedMesh ) {
-						// console.log( child );
-						skeletonHelper = new THREE.SkeletonHelper( child );
-						skeletonHelper.material.linewidth = 2;
+
+						skeletonHelper = new THREE.SkeletonHelper( dae );
+						skeletonHelper.material.linewidth = 3;
 						skeletonHelper.visible = false;
 						scene.add( skeletonHelper );
+
 						var animFolder = newFolder.addFolder("Animation");
 						animFolder.open();
 						animFolder.add( skeletonHelper, "visible" ).name("Show Skeletton");
 
-						var animation = new THREE.Animation( child, child.geometry.animation );
-						self.animation = animation;
+						var mixer = new THREE.AnimationMixer( dae );
+						var animations = collada.animations;
+						var clip = mixer.clipAction( animations[ 0 ] );
+
+						self.animation = animations;
 						// animation.timeScale = 1/2 ; // add this
 						// animation.play();
-						console.log( "anim", animation );
+						console.log( "animations", animations );
+						console.log( "mixer", mixer );
+						console.log( "clip", clip );
 
-						// var track = new THREE.NumberKeyframeTrack( trackName, times, values );
-						var track = new THREE.NumberKeyframeTrack( "crazy", [0,1], [0, 40] );
-
-						// var clip = new THREE.AnimationClip( name, duration, tracks );
-						// var clip = THREE.AnimationClip.parseAnimation( animation, skl.tag );
-						var clip = new THREE.AnimationClip( "crazy2", 2, track );
-
-						animFolder.add( animation, "timeScale" ).max(2).min(0.1);
-						var aPlay = animFolder.add( animation, "play" ).name("PLAY "+animation.data.name);
-						var aStop = animFolder.add( animation, "stop" ).name("STOP "+animation.data.name);
+						animFolder.add( clip, "timeScale" ).max(2).min(0.1);
+						var aPlay = animFolder.add( clip, "play" ).name("PLAY "+animations[ 0 ].name);
+						var aStop = animFolder.add( clip, "stop" ).name("STOP "+animations[ 0 ].name);
 
 						var start = 0;
-						var max = animation.data.length;
-						var fps = animation.data.fps;
+						var max = animations[ 0 ].duration;
+						// var fps = clip.fps;
+						var fps = 24;
 
 						var loop = { start: 0, end: 0, sound: null };
 						self.loop = loop;
@@ -394,19 +392,19 @@ define(function (require) {
 
 						var obj = { 
 									idle:function(){ 
-											loop.start = 0; 
+											loop.start = 0/fps; 
 											loop.end = 40/fps; 
 											loop.sound = null; 
 											//play( loop.start ); 
 										},
 									walk:function(){ 
-											loop.start = 40/fps; 
+											loop.start = 50/fps; 
 											loop.end = 90/fps; 
 											loop.sound = step; 
 											//play( loop.start ); 
 										},
 									run:function(){ 
-											loop.start = 90/fps; 
+											loop.start = 100/fps; 
 											loop.end = 120/fps; 
 											loop.sound = step; 
 											//play( loop.start ); 
@@ -452,6 +450,7 @@ define(function (require) {
 
 						// start with idle animation
 						obj.idle();
+						clip.play();
 
 						self.animations = obj;
 						// self.setupFSM( animation, obj, loop );
@@ -463,24 +462,29 @@ define(function (require) {
 							self.update= function( deltaTime ) {
 
 								oldUpdateFunction();
+						    				
+								if ( mixer !== undefined ) {
+									mixer.update( deltaTime );
+								}
 
-								if ( animation.currentTime > loop.end || animation.currentTime < loop.start ) {
-								    animation.stop();
+								if ( clip.time > loop.end || clip.time < loop.start ) {
+								    // clip.stop();
+								    clip.reset();
 								    if( loop.sound instanceof THREE.Audio ) {
 								    	if ( loop.sound.isPlaying ) {
 								        	loop.sound.stop();
 								    	}
 								        loop.sound.play();
 								    }
-								    animation.play(loop.start);
+								    clip.time = loop.start;
+								    clip.play();
 								}
+								
 							}
 
 						})();
 						/*
 						self.update = function( deltaTime ) {
-
-							// skeletonHelper.update();
 							// console.log("updating", self.getName() );
 					    };
 						*/

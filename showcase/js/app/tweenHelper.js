@@ -6,7 +6,7 @@ define([
        "three", 
        "TWEEN",
        "camera",
-       "controls"
+       "controls",
 ], function ( THREE, TWEEN, camera, controls ) {
 
     'use strict';
@@ -28,7 +28,6 @@ define([
 	function fitObject ( object ) {
 
 		var box = new THREE.Box3().setFromObject( object )
-		var boundingBoxSize = box.max.sub( box.min );
 
 		var height = boundingBoxSize.y;
 
@@ -41,10 +40,8 @@ define([
 		var offset = offset || 1;
 		// adjusting camera position
 		// to display model in full visible height
-		var calc_distance = height/ 2 / Math.tan(Math.PI * camera.fov / 360);
 
 		var position = new THREE.Vector3( 0, height * 1.1 + object.position.y, calc_distance + offset );
-		var target = new THREE.Vector3( 0, height / 3 + object.position.y, 0 );
 
 		tweenVector ( camera.position, position );
 		tweenVector ( controls.target, target );

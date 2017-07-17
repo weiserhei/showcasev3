@@ -33,20 +33,20 @@ define(function (require) {
 	function getReplacedMaterials( material ) {
 
 		var parameters = { roughness: 0.7, metalness: 0.2 };
+		// if ( material.isMultiMaterial ) {
+		if ( Array.isArray( material ) ) {
+			var replacedMaterial = [];
 
-		if ( material instanceof THREE.MultiMaterial ) {
-
-			var replacedMaterial = new THREE.MultiMaterial();
-
-			for( let i = 0; i < material.materials.length; i ++ ) {
-
+			for( let i = 0; i < material.length; i ++ ) {
 				// var newMaterial = new THREE.MeshPhongMaterial();
 				var newMaterial = new THREE.MeshStandardMaterial( parameters );
-				newMaterial.map = material.materials[ i ].map;
-				newMaterial.normalMap = material.materials[ i ].bumpMap;
+				newMaterial.skinning = true;
+				newMaterial.map = material[ i ].map;
+				// newMaterial.normalMap = material[ i ].bumpMap; // removed in colladaLoader2
 				// console.log("material", newMaterial);
 				// mm.materials[ i ] = newMaterial;
-				replacedMaterial.materials.push( newMaterial );
+				// replacedMaterial.materials.push( newMaterial );
+				replacedMaterial.push( newMaterial );
 				
 			}
 
@@ -55,7 +55,7 @@ define(function (require) {
 			var replacedMaterial = new THREE.MeshStandardMaterial( parameters );
 			replacedMaterial.skinning = true;
 			replacedMaterial.map = material.map;
-			replacedMaterial.normalMap = material.bumpMap;
+			// replacedMaterial.normalMap = material.bumpMap; // removed in colladaLoader2
 		}
 
 		return replacedMaterial;
@@ -132,12 +132,13 @@ define(function (require) {
 			}
 		);
 		
-		var monster = new Character( "assets/models/monster/monster.dae", "Monster", function callback( dae ) {
-			dae.scale.multiplyScalar( 0.01 );
+		var stormtrooper = new Character( "assets/models/stormtrooper/stormtrooper.dae", "Stormtrooper", function callback( dae ) {
+			dae.scale.multiplyScalar( 0.3 );
+			dae.rotateZ( Math.PI );
 		} );
 		// load manually or let CharacterController handle it
-		// monster.load();
-		characterController.add( monster );
+		// stormtrooper.load();
+		characterController.add( stormtrooper );
 		// var fryman = new Character("assets/models/fryman/fryman_animation.dae", "Fryman" );
 		// characterController.add( fryman );
 
@@ -153,27 +154,19 @@ define(function (require) {
 			// var shoulder_R = dae.children[1].children[0].children[0].children[0].children[0].children[1];
 			// var hand_R = shoulder_R.children[0].children[0].children[0];
 			// var hand_R = dae.getObjectByName("hand_R");
-			var hand_L = dae.getObjectByName("hand_L");
-			console.log("hand",hand_L);
-
+			// var hand_L = dae.getObjectByName("hand_L");
 			var item_L = dae.getObjectByName("item_L");
-			console.log( "item bone", item_L);
-			// dg.add( item_L.position, "x" );
-			// hand_L.add( item_L );
-			// item_L.updateMatrix();
+			// console.log( "item bone", item_L);
 
 			var weapons = new THREE.Group();
 			// weapons.applyMatrix( item_L.matrix );
-			// hand_L.add( weapons );
+			weapons.rotateX( Math.PI / 2 );
 			item_L.add( weapons );
 			
 			dae.traverse( function ( child ) {
-
 				if ( child instanceof THREE.SkinnedMesh ) {
-
 					var material = getReplacedMaterials( child.material );
 					child.material = material;
-
 				}
 				
 			} );
@@ -183,8 +176,6 @@ define(function (require) {
 				box: function() {
 
 					var cube = new THREE.Mesh( new THREE.BoxGeometry(0.2, 0.2, 0.4), new THREE.MeshPhongMaterial( {transparent: true, opacity: 0.5} ) );
-					// console.log( hand_L );
-
 					weapons.traverse( function( child ) {
 						weapons.remove( child );
 					});
@@ -208,10 +199,9 @@ define(function (require) {
 						dae.name = "weapon";
 						/*
 						dae.position.set( 0, 0.02, -0.1 ); // x = up/down, y = left/right
-						dae.rotateZ( Math.PI / 2 ); //adjust metal head top
-						dae.rotateY( -Math.PI / 2 ); //adjust sharp side
-						*/
+						// dae.rotateX( Math.PI / 2 );
 						dae.updateMatrix();
+						*/
 						weapons.add( dae );
 
 					});
@@ -240,7 +230,7 @@ define(function (require) {
 
 						var singleMap = textureLoader.load( envpath + textureName );
 						singleMap.mapping = THREE.EquirectangularReflectionMapping; // make single image use as cubemap
-
+/*
 						var material = new THREE.MeshStandardMaterial({
 							map: T_mang,
 							normalMap: T_mang_normal,
@@ -259,16 +249,18 @@ define(function (require) {
 								child.material = material;
 							}
 						});
+*/
 
 						/*
-						group.position.set( -0.05, 0.06, -0.23 ); // x = up/down, y = left/right
 						// dg.add( group.position, "x" ).max(1).min(-1);
 						// dg.add( group.position, "y" ).max(1).min(-1);
 						// dg.add( group.position, "z" ).max(1).min(-1);
 						group.rotateZ( Math.PI / 2 ); //adjust metal head top
-						group.rotateY( Math.PI / 2.2 ); //adjust sharp side
 						console.log( group );
 						*/
+						group.position.set( -0.16, 0.06, -0.07 ); // x = up/down, y = left/right
+						group.rotateY( Math.PI - 0.3 ); //adjust sharp side
+						dae.updateMatrix();
 						group.scale.multiplyScalar( 0.001 );
 						group.name = "weapon";
 						weapons.add( group );
@@ -300,7 +292,6 @@ define(function (require) {
 		function callbackWache2( dae ) {
 			dae.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
-					// console.log("child.material", child.material );
 					var material = getReplacedMaterials( child.material );
 					child.material = material;
 				}
@@ -458,7 +449,6 @@ define(function (require) {
 		controls.update();
 		stats.update();
 		characterController.update( deltaTime );
-		THREE.AnimationHandler.update( deltaTime );
 
 		skycube.update( camera, renderer );
 		renderer.render( scene, camera );

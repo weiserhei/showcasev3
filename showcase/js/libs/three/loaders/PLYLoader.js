@@ -43,7 +43,7 @@ THREE.PLYLoader.prototype = {
 
 		var scope = this;
 
-		var loader = new THREE.XHRLoader( this.manager );
+		var loader = new THREE.FileLoader( this.manager );
 		loader.setResponseType( 'arraybuffer' );
 		loader.load( url, function ( text ) {
 
@@ -61,19 +61,19 @@ THREE.PLYLoader.prototype = {
 
 	parse: function ( data ) {
 
-		function isASCII( data ) {
-
-			var header = parseHeader( bin2str( data ) );
-			return header.format === 'ascii';
-
-		}
-
 		function bin2str( buf ) {
 
 			var array_buffer = new Uint8Array( buf );
+
+			if ( window.TextDecoder !== undefined ) {
+
+				return new TextDecoder().decode( array_buffer );
+
+			}
+
 			var str = '';
 
-			for ( var i = 0; i < buf.byteLength; i ++ ) {
+			for ( var i = 0, il = buf.byteLength; i < il; i ++ ) {
 
 				str += String.fromCharCode( array_buffer[ i ] ); // implicitly assumes little-endian
 
@@ -249,7 +249,7 @@ THREE.PLYLoader.prototype = {
 
 		}
 
-		function parseASCII( data ) {
+		function parseASCII( data, header ) {
 
 			// PLY ascii format specification, as per http://en.wikipedia.org/wiki/PLY_(file_format)
 
@@ -262,8 +262,6 @@ THREE.PLYLoader.prototype = {
 			};
 
 			var result;
-
-			var header = parseHeader( data );
 
 			var patternBody = /end_header\s([\s\S]*)$/;
 			var body = '';
@@ -312,26 +310,31 @@ THREE.PLYLoader.prototype = {
 
 			// mandatory buffer data
 
-			geometry.setIndex( ( buffer.indices.length > 65535 ? THREE.Uint32Attribute : THREE.Uint16Attribute )( buffer.indices, 1 ) );
-			geometry.addAttribute( 'position', THREE.Float32Attribute( buffer.vertices, 3 ) );
+			if ( buffer.indices.length > 0 ) {
+
+				geometry.setIndex( buffer.indices );
+
+			}
+
+			geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( buffer.vertices, 3 ) );
 
 			// optional buffer data
 
 			if ( buffer.normals.length > 0 ) {
 
-				geometry.addAttribute( 'normal', THREE.Float32Attribute( buffer.normals, 3 ) );
+				geometry.addAttribute( 'normal', new THREE.Float32BufferAttribute( buffer.normals, 3 ) );
 
 			}
 
 			if ( buffer.uvs.length > 0 ) {
 
-				geometry.addAttribute( 'uv', THREE.Float32Attribute( buffer.uvs, 2 ) );
+				geometry.addAttribute( 'uv', new THREE.Float32BufferAttribute( buffer.uvs, 2 ) );
 
 			}
 
 			if ( buffer.colors.length > 0 ) {
 
-				geometry.addAttribute( 'color', THREE.Float32Attribute( buffer.colors, 3 ) );
+				geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( buffer.colors, 3 ) );
 
 			}
 
@@ -441,7 +444,7 @@ THREE.PLYLoader.prototype = {
 
 		}
 
-		function parseBinary( data ) {
+		function parseBinary( data, header ) {
 
 			var buffer = {
 				indices : [],
@@ -451,7 +454,6 @@ THREE.PLYLoader.prototype = {
 				colors : []
 			};
 
-			var header = parseHeader( bin2str( data ) );
 			var little_endian = ( header.format === 'binary_little_endian' );
 			var body = new DataView( data, header.headerLength );
 			var result, loc = 0;
@@ -481,11 +483,14 @@ THREE.PLYLoader.prototype = {
 
 		if ( data instanceof ArrayBuffer ) {
 
-			geometry = isASCII( data ) ? parseASCII( bin2str( data ) ) : parseBinary( data );
+			var text = bin2str( data );
+			var header = parseHeader( text );
+
+			geometry = header.format === 'ascii' ? parseASCII( text, header ) : parseBinary( data, header );
 
 		} else {
 
-			geometry = parseASCII( data );
+			geometry = parseASCII( data, parseHeader( data ) );
 
 		}
 

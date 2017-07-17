@@ -52,23 +52,23 @@
 
 	}
 
-	AWDProperties = function() {}
+	function AWDProperties() {}
 
 	AWDProperties.prototype = {
-		set : function( key, value ) {
+		set: function( key, value ) {
 
 			this[ key ] = value;
 
 		},
 
-		get : function( key, fallback ) {
+		get: function( key, fallback ) {
 
 			if ( this.hasOwnProperty( key ) )
 				return this[ key ];
 			else return fallback;
 
 		}
-	}
+	};
 
 	THREE.AWDLoader = function ( manager ) {
 
@@ -81,7 +81,7 @@
 		this._url     = '';
 		this._baseDir = '';
 
-		this._data;
+		this._data = undefined;
 		this._ptr = 0;
 
 		this._version =  [];
@@ -109,7 +109,7 @@
 			this._url = url;
 			this._baseDir = url.substr( 0, url.lastIndexOf( '/' ) + 1 );
 
-			var loader = new THREE.XHRLoader( this.manager );
+			var loader = new THREE.FileLoader( this.manager );
 			loader.setResponseType( 'arraybuffer' );
 			loader.load( url, function ( text ) {
 
@@ -288,7 +288,6 @@
 					mtx,
 					materials, mat, mat_id,
 					num_materials,
-					materials_parsed,
 					parent,
 					i;
 
@@ -301,7 +300,6 @@
 			geometries = this.getBlock( data_id );
 
 			materials = [];
-			materials_parsed = 0;
 
 			for ( i = 0; i < num_materials; i ++ ) {
 

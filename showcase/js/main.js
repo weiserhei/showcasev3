@@ -27,7 +27,7 @@ require.config({
         'OrbitControls': "../libs/three/controls/OrbitControls",
         'Stats': "../libs/stats.min",
         'detector': "../libs/three/Detector",
-        'ColladaLoader': "../libs/three/loaders/ColladaLoader",
+        'ColladaLoader': "../libs/three/loaders/ColladaLoader2_dev",
         'OBJLoader': "../libs/three/loaders/OBJLoader",
         "StateMachine": "../libs/state-machine.min",
         // 'MTLLoader': "../libs/three/loaders/MTLLoader",

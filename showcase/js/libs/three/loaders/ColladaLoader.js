@@ -682,11 +682,11 @@ THREE.ColladaLoader = function () {
 
 	}
 
-	function applySkin ( geometry, instanceCtrl, frame ) {
+	function applySkin( geometry, instanceCtrl, frame ) {
+
+		if ( frame === undefined ) frame = 40;
 
 		var skinController = controllers[ instanceCtrl.url ];
-
-		frame = frame !== undefined ? frame : 40;
 
 		if ( !skinController || !skinController.skin ) {
 
@@ -907,12 +907,14 @@ THREE.ColladaLoader = function () {
 						var transforms = jointData.transforms;
 
 						var matrix = new THREE.Matrix4();
+						var m1 = new THREE.Matrix4();
 
 						for (i = 0; i < transforms.length; i ++ ) {
 
 							var transform = transforms[ i ];
 
 							// kinda ghetto joint detection
+
 							if ( transform.sid && transform.sid.indexOf( 'joint' + jointIndex ) !== -1 ) {
 
 								// apply actual joint value here
@@ -936,8 +938,6 @@ THREE.ColladaLoader = function () {
 								}
 
 							} else {
-
-								var m1 = new THREE.Matrix4();
 
 								switch ( transform.type ) {
 
@@ -988,6 +988,9 @@ THREE.ColladaLoader = function () {
 
 						threejsNode.matrix.set.apply( threejsNode.matrix, elementsRowMajor );
 						threejsNode.matrix.decompose( threejsNode.position, threejsNode.quaternion, threejsNode.scale );
+
+						jointMap[ jointIndex ].position = value;
+
 					}
 
 				} else {
@@ -1182,7 +1185,7 @@ THREE.ColladaLoader = function () {
 				if ( num_materials > 1 ) {
 
 					material = new THREE.MultiMaterial( used_materials_array );
-					
+
 					for ( j = 0; j < geom.faces.length; j ++ ) {
 
 						var face = geom.faces[ j ];
@@ -2168,13 +2171,11 @@ THREE.ColladaLoader = function () {
 			var dotSyntax = (sid.indexOf(".") >= 0);
 			var arrSyntax = (sid.indexOf("(") >= 0);
 			var arrIndices;
-			var member;
 
 			if ( dotSyntax ) {
 
 				parts = sid.split(".");
 				sid = parts.shift();
-				member = parts.shift();
 
 			} else if ( arrSyntax ) {
 
@@ -2868,7 +2869,7 @@ THREE.ColladaLoader = function () {
 		var j, k, pList = primitive.p, inputs = primitive.inputs;
 		var input, index, idx32;
 		var source, numParams;
-		var vcIndex = 0, vcount = 3, maxOffset = 0;
+		var vcount, vcIndex = 0, maxOffset = 0;
 		var texture_sets = [];
 
 		for ( j = 0; j < inputs.length; j ++ ) {
@@ -3697,11 +3698,11 @@ THREE.ColladaLoader = function () {
 						if ( cot.isTexture() ) {
 
 							var samplerId = cot.texture;
-							var surfaceId = this.effect.sampler[samplerId];
+							var sampler = this.effect.sampler[samplerId];
 
-							if ( surfaceId !== undefined && surfaceId.source !== undefined ) {
+							if ( sampler !== undefined && sampler.source !== undefined ) {
 
-								var surface = this.effect.surface[surfaceId.source];
+								var surface = this.effect.surface[sampler.source];
 
 								if ( surface !== undefined ) {
 
@@ -3726,8 +3727,34 @@ THREE.ColladaLoader = function () {
 
 										}
 
-										texture.wrapS = cot.texOpts.wrapU ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
-										texture.wrapT = cot.texOpts.wrapV ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+										if ( sampler.wrap_s === "MIRROR" ) {
+
+											texture.wrapS = THREE.MirroredRepeatWrapping;
+
+										} else if ( sampler.wrap_s === "WRAP" || cot.texOpts.wrapU ) {
+
+											texture.wrapS = THREE.RepeatWrapping;
+
+										} else {
+
+											texture.wrapS = THREE.ClampToEdgeWrapping;
+
+										}
+
+										if ( sampler.wrap_t === "MIRROR" ) {
+
+											texture.wrapT = THREE.MirroredRepeatWrapping;
+
+										} else if ( sampler.wrap_t === "WRAP" || cot.texOpts.wrapV ) {
+
+											texture.wrapT = THREE.RepeatWrapping;
+
+										} else {
+
+											texture.wrapT = THREE.ClampToEdgeWrapping;
+
+										}
+
 										texture.offset.x = cot.texOpts.offsetU;
 										texture.offset.y = cot.texOpts.offsetV;
 										texture.repeat.x = cot.texOpts.repeatU;
